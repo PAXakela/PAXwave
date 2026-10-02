@@ -1,0 +1,60 @@
+PAXwave
+Copyright (C) 2026 PAXwave contributors
+
+PAXwave is free software, licensed under the GNU General Public License,
+version 3 (see LICENSE).
+
+PAXwave is based on BitChord and was modified from it in 2026, as section 5
+of the GPL requires this file to state:
+
+  BitChord — https://github.com/kushagrasinghx/BitChord
+  Copyright (C) Kushagra Singh and contributors, GPL-3.0
+  Contributors: kushagrasinghx, Galaxyyss, NeoTurcios, hongducdev, kmmiio99o,
+  byburak3525, penetratorcwl, nitinbhat972, AbhiTheModder, AngelCas04,
+  MaverickRox, aryasarukkai, Eful97, chaudharyjatin115, bazilbycom, BernoldM,
+  Elitenotavailable, InfantAjith96, SHUBH-snippet, yxyydev
+
+PAXwave's modifications: podcasts (RSS, discover, queue, downloads,
+auto-download, AutoPlay, sleep timer), internet radio, categorised search,
+its own navigation, library, cards, start animation and logo; Listen Together
+and the in-app update check are not included.
+
+Third-party components and their licences:
+  Echo Music (EchoMusicApp), glass nav bar  GPL-3.0
+  Convx, overscroll and addon runtime ..... GPL-3.0
+  Orchard (SFG545), track analysis ........ AGPL-3.0 (see below)
+  decent-player (Ma145), USB audio ........ MIT
+  NewPipe Extractor (Team NewPipe) ........ GPL-3.0
+  InnerTubeX (Metrolist) .................. GPL-3.0
+  Kizzy (dead8309), Discord presence ...... GPL-3.0
+  am-lyrics (binimum), lyrics animation ... MPL-2.0
+  backdrop (Kyant0), liquid glass ......... Apache-2.0
+  compose-floating-tab-bar (E. Mansour) ... Apache-2.0
+  Beat This! model (CP JKU) ............... MIT
+  Open-Unmix model (sigsep) ............... MIT
+  AndroidX / Media3 / Jetpack Compose ..... Apache-2.0
+  Kotlin, kotlinx, Ktor (JetBrains) ....... Apache-2.0
+  OkHttp (Square) ......................... Apache-2.0
+  Coil .................................... Apache-2.0
+  Haze (Chris Banes) ...................... Apache-2.0
+  ONNX Runtime (Microsoft) ................ MIT
+  Mozilla Rhino ........................... MPL-2.0
+  QuickJS-kt (dokar3) ..................... Apache-2.0
+  nanojson (Team NewPipe) ................. MIT / Apache-2.0
+  BgUtils (LuanRT), po_token patterns .... MIT
+  jsoup ................................... MIT
+  SMBJ .................................... Apache-2.0
+  ZXing ................................... Apache-2.0
+  compose-richtext ........................ Apache-2.0
+  Inter typeface (Rasmus Andersson) ....... OFL-1.1
+  Protocol Buffers (Google) ............... BSD-3-Clause
+  JSR-305 annotations (FindBugs) .......... BSD-3-Clause
+
+The track-analysis files ported from Orchard (playback/smart/ and
+native/analyzer/, marked in their headers) are licensed under the GNU Affero
+General Public License, version 3 or later, and are combined with the rest
+of PAXwave as section 13 of the GPL-3.0 permits.
+
+Services: Radio Browser (radio-browser.info), Apple Podcasts directory,
+podcast feeds (© their creators), YouTube Music. PAXwave is not affiliated
+with Google, YouTube or Apple.
