@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/images/banner.png" alt="PAXwave" width="100%" />
+<img src="banner.png" alt="PAXwave" width="100%" />
 
 <p><b>Your music, your podcasts and the world's radio in one calm, private Android player.</b></p>
 
