@@ -61,7 +61,7 @@ import com.music.bitchord.R
 import com.music.bitchord.ui.components.PAGE_GUTTER
 
 /** Where PAXwave's source lives — what the GPL promises everyone who gets the app. */
-const val PAXWAVE_SOURCE_URL = "https://github.com/nicoody/EchoWaveProject"
+const val PAXWAVE_SOURCE_URL = "https://github.com/PAXakela/PAXwave"
 private const val GPL_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
 
 /** "PAXwave", written as the logo writes it: PAX heavy, wave light. */
