@@ -13,15 +13,65 @@
 
 <p>
 <a href="#install"><b>Download</b></a> ·
+<a href="#built-on-bitchord"><b>Built on BitChord</b></a> ·
 <a href="#features"><b>Features</b></a> ·
 <a href="#screenshots"><b>Screenshots</b></a> ·
 <a href="#privacy"><b>Privacy</b></a> ·
 <a href="#build-from-source"><b>Build</b></a> ·
 <a href="#credits"><b>Credits</b></a> ·
+<a href="#disclaimer"><b>Disclaimer</b></a> ·
 <a href="#licence"><b>Licence</b></a>
 </p>
 
 </div>
+
+---
+
+## Built on BitChord
+
+<div align="center">
+
+<a href="https://github.com/kushagrasinghx/BitChord"><img src="docs/images/bitchord-banner.jpg" alt="BitChord: All the music, none of the bloat" width="100%" /></a>
+
+</div>
+
+<img src="docs/images/bitchord-icon.png" alt="BitChord" width="72" align="left" />
+
+**PAXwave is a fork of [BitChord](https://github.com/kushagrasinghx/BitChord)**, the beautiful
+open-source YouTube Music client by **[Kushagra Singh](https://github.com/kushagrasinghx)** and
+the BitChord community.
+
+<br clear="left"/>
+
+Everything that makes PAXwave sound and feel good as a music player starts with BitChord: the
+YouTube Music client, the player and its audio engine, synced lyrics, Automix, Replay, downloads,
+the equaliser and much more. PAXwave keeps all of that and builds on top of it with new
+features, its own look and a few changes of direction.
+
+### What PAXwave adds and changes
+
+- **Podcasts, built in from scratch:** RSS subscriptions, search, Discover charts by country and
+  category, new-episode inbox, queue, podcast-only AutoPlay, resume and played state, downloads,
+  per-show auto-download with background refresh, sleep timer with fade-out, speed and skips
+- **Internet radio:** the Radio Browser directory, genres, countries, custom stream URLs,
+  favourites and live "now playing" titles
+- **One search** across music, podcasts and radio, with category filters
+- **A reworked interface:** new Home sections, a Podcasts tab in the navigation, a redesigned
+  header and library with pinned favourites, compact cards and a new start animation
+- **Its own identity:** the PAXwave name, shield logo, aqua accent colour and the Inter typeface
+- **Public, reproducible releases:** every APK is built by GitHub Actions from the tagged source
+- **Left out on purpose:** Listen Together (no party server) and the in-app update check
+
+### Thank you, BitChord team ❤️
+
+A huge thank you to **Kushagra Singh** and **every BitChord contributor**. Your work is the
+foundation of this app, and PAXwave would simply not exist without it. Thank you for building
+something this good and for sharing it with everyone under the GPL.
+
+If you enjoy PAXwave, please **[give BitChord a ⭐](https://github.com/kushagrasinghx/BitChord)**
+and support the original project. All credit for the BitChord parts belongs to its authors;
+the BitChord name, logo and banner shown here are theirs and are used only to credit them.
+PAXwave is an independent fork and is not run or endorsed by the BitChord team.
 
 ---
 
@@ -215,6 +265,29 @@ The full list, with licence texts, is also in the app under **Settings → About
 
 ---
 
+## Disclaimer
+
+PAXwave is an independent, community-made, third-party player. It is **not associated with**
+Google LLC, YouTube or YouTube Music, Apple, Deezer, Telegram, Radio Browser, or any podcast
+publisher or radio station, nor with any of their parent companies.
+
+- **No hosted media:** PAXwave does not host, upload or store any music, podcasts or radio
+  streams. It is only a player: it plays files stored on your own device and streams media
+  directly from public services, public feeds and stations, or services you sign in to yourself.
+- **Your responsibility:** PAXwave is made for personal, educational and research use. You are
+  responsible for using it in line with the copyright laws of your country and the terms of the
+  services you use, including YouTube's Terms of Service.
+- **No guarantees:** PAXwave aims for a clean, ad-free listening experience, but it cannot
+  promise that third-party services will keep working with it, or keep working the same way.
+- **Copyleft:** PAXwave is free software under the GPL-3.0. Anyone may share, modify or even sell
+  copies, but every copy must come with its complete source code under the same licence.
+
+> [!IMPORTANT]
+> PAXwave is not affiliated with, endorsed by or connected to YouTube, Google or Apple in any
+> way. Use it at your own discretion.
+
+---
+
 ## Licence
 
 <img src="docs/images/icon.png" alt="" width="64" align="right" />
@@ -228,5 +301,4 @@ Foundation. It is distributed in the hope that it will be useful, but **without 
 without even the implied warranty of merchantability or fitness for a particular purpose.
 See [`LICENSE`](LICENSE) for the full text.
 
-PAXwave is an independent project and is not affiliated with, endorsed by or sponsored by
-Google, YouTube or Apple. All trademarks belong to their owners.
+All trademarks belong to their owners.
