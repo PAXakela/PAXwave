@@ -292,9 +292,6 @@ publisher or radio station, nor with any of their parent companies.
 
 <img src="docs/images/icon.png" alt="" width="64" align="right" />
 
-**PAXwave**, Copyright © 2026 PAXwave contributors.
-Based on **BitChord**, Copyright © Kushagra Singh and BitChord contributors.
-
 PAXwave is free software: you can redistribute it and/or modify it under the terms of the
 **GNU General Public License, version 3** (GPL-3.0) as published by the Free Software
 Foundation. It is distributed in the hope that it will be useful, but **without any warranty**,
