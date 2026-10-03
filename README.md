@@ -13,10 +13,10 @@
 
 <p>
 <a href="#install"><b>Download</b></a> ·
+<a href="#screenshots"><b>Screenshots</b></a> ·
 <a href="#built-on-bitchord"><b>Built on BitChord</b></a> ·
 <a href="#whats-new"><b>What's new</b></a> ·
 <a href="#features"><b>Features</b></a> ·
-<a href="#screenshots"><b>Screenshots</b></a> ·
 <a href="#privacy"><b>Privacy</b></a> ·
 <a href="#build-from-source"><b>Build</b></a> ·
 <a href="#credits"><b>Credits</b></a> ·
@@ -25,6 +25,59 @@
 </p>
 
 </div>
+
+---
+
+## Screenshots
+
+### 📱 Phone
+
+<table align="center">
+  <tr><th colspan="4">🏠 Home &amp; 🎵 Player</th></tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/phone/01-home.jpg" width="190" alt="Listen Now" /><br/><sub>Listen Now</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/02-home-podcasts-radio.jpg" width="190" alt="Latest episodes &amp; your stations" /><br/><sub>Latest episodes &amp; your stations</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/03-home-albums.jpg" width="190" alt="Listen again &amp; new releases" /><br/><sub>Listen again &amp; new releases</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/04-now-playing.jpg" width="190" alt="Now playing" /><br/><sub>Now playing</sub></td>
+  </tr>
+  <tr><th colspan="4">🧭 Explore &amp; 🎙️ Podcasts</th></tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/phone/05-explore.jpg" width="190" alt="Explore" /><br/><sub>Explore</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/06-moods.jpg" width="190" alt="Moods &amp; moments" /><br/><sub>Moods &amp; moments</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/07-podcasts.jpg" width="190" alt="My podcasts" /><br/><sub>My podcasts</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/08-podcast-show.jpg" width="190" alt="Podcast show" /><br/><sub>Podcast show</sub></td>
+  </tr>
+  <tr><th colspan="4">🎙️ Discover &amp; 📚 Library</th></tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/phone/09-discover.jpg" width="190" alt="Discover podcasts" /><br/><sub>Discover podcasts</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/10-library.jpg" width="190" alt="Library &amp; pins" /><br/><sub>Library &amp; pins</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/11-library-radio.jpg" width="190" alt="Radio, on device, playlists" /><br/><sub>Radio, on device, playlists</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/12-library-artists.jpg" width="190" alt="Artists &amp; subscriptions" /><br/><sub>Artists &amp; subscriptions</sub></td>
+  </tr>
+</table>
+
+### 📱 Tablet
+
+On tablets and unfolded foldables PAXwave switches to a sidebar and wider grids by itself
+(or set it under Settings → Appearance → *Tablet layout*).
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/tablet/01-home.jpg" width="400" alt="Home" /><br/><sub>Home</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet/02-home-radio.jpg" width="400" alt="Radio &amp; albums on Home" /><br/><sub>Radio &amp; albums on Home</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/tablet/03-explore.jpg" width="400" alt="Explore" /><br/><sub>Explore</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet/04-podcasts.jpg" width="400" alt="Podcasts" /><br/><sub>Podcasts</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/tablet/05-library.jpg" width="400" alt="Library" /><br/><sub>Library</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet/06-library-on-device.jpg" width="400" alt="On device, playlists &amp; artists" /><br/><sub>On device, playlists &amp; artists</sub></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2"><img src="docs/screenshots/tablet/07-now-playing.jpg" width="600" alt="Now playing" /><br/><sub>Now playing</sub></td>
+  </tr>
+</table>
 
 ---
 
@@ -159,17 +212,23 @@ See every version on the [Releases](https://github.com/PAXakela/PAXwave/releases
 - Favourites and a live **"now playing"** title where the station sends one
 
 ### 🔋 Battery
-- **Battery saver**, on demand or automatically with Android's Battery Saver. While it is on,
-  PAXwave switches off animations, blur, liquid glass and animated cover art, uses the standard
-  refresh rate, pauses Automix analysis, Discord status and automatic podcast downloads, and
-  preloads only the next song. Your own settings come back the moment it is off.
-- **Analyse songs only while charging:** Automix's on-device beat and vocal analysis waits for
-  a charger and uses a normal crossfade in the meantime
-- **Preload upcoming songs:** instant, gapless playback, or off to save data and battery
-- **Power-efficient podcasts and radio:** episodes and stations play on the phone's low-power
-  audio chip while the processor sleeps (when no equaliser, spatial audio or skip silence is on)
-- **Podcast checks:** every 3, 6, 12 or 24 hours, or never, optionally only on Wi-Fi and only
-  while charging; background checks always pause when the battery is low
+Everything here is a switch or choice under **Settings → Battery**, so you decide how much
+PAXwave does in the background.
+
+| Setting | What it does | Default |
+| --- | --- | :---: |
+| **Battery saver** | Turns off animations, blur, liquid glass and animated cover art, uses the standard refresh rate, pauses Automix analysis, Discord status and automatic podcast downloads, and preloads only the next song. Your own settings return when it is off. | Off |
+| ↳ **Follow Android's Battery Saver** | Switches the battery saver on and off together with the system's | On |
+| **Analyse songs only while charging** | Automix's on-device beat and vocal analysis waits for a charger and uses a normal crossfade until then | Off |
+| **Power-efficient podcasts and radio** | Plays episodes and stations on the phone's low-power audio chip, so the processor can sleep with the screen off (when no equaliser, spatial audio or skip silence is on) | On |
+| **Preload upcoming songs** | Instant, gapless playback; turn it off to save data and battery | On |
+| **Check for new episodes** | Every 3, 6, 12 or 24 hours, or never | 6 h |
+| ↳ **Only on Wi-Fi** | Background podcast checks wait for Wi-Fi | Off |
+| ↳ **Only while charging** | Background podcast checks wait for a charger | Off |
+
+Each visual extra (animations, dynamic blur, liquid glass, lyrics blur, animated artwork,
+high refresh rate) can also be switched off on its own under **Settings → Appearance** and
+**Performance**. Background podcast checks always pause when the battery is low.
 
 ### 📱 Tablets and foldables
 - A **sidebar** with Home, Explore, Podcasts, Library, Search and Settings: a compact rail on
@@ -184,59 +243,6 @@ See every version on the [Releases](https://github.com/PAXakela/PAXwave/releases
 - **Explore** moods, genres and charts, with chips to jump straight to a section
 - Liquid-glass navigation, a calm black-and-white design with one aqua accent, and the
   [Inter](https://rsms.me/inter/) typeface
-
----
-
-## Screenshots
-
-### 📱 Phone
-
-<table align="center">
-  <tr><th colspan="4">🏠 Home &amp; 🎵 Player</th></tr>
-  <tr>
-    <td align="center"><img src="docs/screenshots/phone/01-home.jpg" width="190" alt="Listen Now" /><br/><sub>Listen Now</sub></td>
-    <td align="center"><img src="docs/screenshots/phone/02-home-podcasts-radio.jpg" width="190" alt="Latest episodes &amp; your stations" /><br/><sub>Latest episodes &amp; your stations</sub></td>
-    <td align="center"><img src="docs/screenshots/phone/03-home-albums.jpg" width="190" alt="Listen again &amp; new releases" /><br/><sub>Listen again &amp; new releases</sub></td>
-    <td align="center"><img src="docs/screenshots/phone/04-now-playing.jpg" width="190" alt="Now playing" /><br/><sub>Now playing</sub></td>
-  </tr>
-  <tr><th colspan="4">🧭 Explore &amp; 🎙️ Podcasts</th></tr>
-  <tr>
-    <td align="center"><img src="docs/screenshots/phone/05-explore.jpg" width="190" alt="Explore" /><br/><sub>Explore</sub></td>
-    <td align="center"><img src="docs/screenshots/phone/06-moods.jpg" width="190" alt="Moods &amp; moments" /><br/><sub>Moods &amp; moments</sub></td>
-    <td align="center"><img src="docs/screenshots/phone/07-podcasts.jpg" width="190" alt="My podcasts" /><br/><sub>My podcasts</sub></td>
-    <td align="center"><img src="docs/screenshots/phone/08-podcast-show.jpg" width="190" alt="Podcast show" /><br/><sub>Podcast show</sub></td>
-  </tr>
-  <tr><th colspan="4">🎙️ Discover &amp; 📚 Library</th></tr>
-  <tr>
-    <td align="center"><img src="docs/screenshots/phone/09-discover.jpg" width="190" alt="Discover podcasts" /><br/><sub>Discover podcasts</sub></td>
-    <td align="center"><img src="docs/screenshots/phone/10-library.jpg" width="190" alt="Library &amp; pins" /><br/><sub>Library &amp; pins</sub></td>
-    <td align="center"><img src="docs/screenshots/phone/11-library-radio.jpg" width="190" alt="Radio, on device, playlists" /><br/><sub>Radio, on device, playlists</sub></td>
-    <td align="center"><img src="docs/screenshots/phone/12-library-artists.jpg" width="190" alt="Artists &amp; subscriptions" /><br/><sub>Artists &amp; subscriptions</sub></td>
-  </tr>
-</table>
-
-### 📱 Tablet
-
-On tablets and unfolded foldables PAXwave switches to a sidebar and wider grids by itself
-(or set it under Settings → Appearance → *Tablet layout*).
-
-<table align="center">
-  <tr>
-    <td align="center"><img src="docs/screenshots/tablet/01-home.jpg" width="400" alt="Home" /><br/><sub>Home</sub></td>
-    <td align="center"><img src="docs/screenshots/tablet/02-home-radio.jpg" width="400" alt="Radio &amp; albums on Home" /><br/><sub>Radio &amp; albums on Home</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="docs/screenshots/tablet/03-explore.jpg" width="400" alt="Explore" /><br/><sub>Explore</sub></td>
-    <td align="center"><img src="docs/screenshots/tablet/04-podcasts.jpg" width="400" alt="Podcasts" /><br/><sub>Podcasts</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="docs/screenshots/tablet/05-library.jpg" width="400" alt="Library" /><br/><sub>Library</sub></td>
-    <td align="center"><img src="docs/screenshots/tablet/06-library-on-device.jpg" width="400" alt="On device, playlists &amp; artists" /><br/><sub>On device, playlists &amp; artists</sub></td>
-  </tr>
-  <tr>
-    <td align="center" colspan="2"><img src="docs/screenshots/tablet/07-now-playing.jpg" width="600" alt="Now playing" /><br/><sub>Now playing</sub></td>
-  </tr>
-</table>
 
 ---
 
@@ -379,12 +385,18 @@ publisher or radio station, nor with any of their parent companies.
 
 ## Licence
 
-<img src="docs/images/icon.png" alt="" width="64" align="right" />
+<img src="docs/images/paxwave-icon.png" alt="" width="64" align="right" />
 
 PAXwave is free software: you can redistribute it and/or modify it under the terms of the
 **GNU General Public License, version 3** (GPL-3.0) as published by the Free Software
 Foundation. It is distributed in the hope that it will be useful, but **without any warranty**,
 without even the implied warranty of merchantability or fitness for a particular purpose.
 See [`LICENSE`](LICENSE) for the full text.
+
+PAXwave includes open-source components under their own licences (GPL-3.0, AGPL-3.0, Apache-2.0,
+MIT, BSD, MPL-2.0 and OFL-1.1), all compatible with the GPL-3.0. Their full licence texts and
+copyright notices are in [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt), a summary is in
+[`NOTICE`](NOTICE), and both ship inside the app under **About PAXwave → Open-source licences**.
+See [Credits](#credits) for the list of projects.
 
 All trademarks belong to their owners.
