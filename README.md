@@ -194,24 +194,24 @@ See every version on the [Releases](https://github.com/PAXakela/PAXwave/releases
 <table align="center">
   <tr><th colspan="4">🏠 Home &amp; 🎵 Player</th></tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/01-home.jpg" width="190" alt="Listen Now" /><br/><sub>Listen Now</sub></td>
-    <td align="center"><img src="docs/screenshots/02-home-podcasts-radio.jpg" width="190" alt="Latest episodes &amp; your stations" /><br/><sub>Latest episodes &amp; your stations</sub></td>
-    <td align="center"><img src="docs/screenshots/03-home-albums.jpg" width="190" alt="Listen again &amp; new releases" /><br/><sub>Listen again &amp; new releases</sub></td>
-    <td align="center"><img src="docs/screenshots/04-now-playing.jpg" width="190" alt="Now playing" /><br/><sub>Now playing</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/01-home.jpg" width="190" alt="Listen Now" /><br/><sub>Listen Now</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/02-home-podcasts-radio.jpg" width="190" alt="Latest episodes &amp; your stations" /><br/><sub>Latest episodes &amp; your stations</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/03-home-albums.jpg" width="190" alt="Listen again &amp; new releases" /><br/><sub>Listen again &amp; new releases</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/04-now-playing.jpg" width="190" alt="Now playing" /><br/><sub>Now playing</sub></td>
   </tr>
   <tr><th colspan="4">🧭 Explore &amp; 🎙️ Podcasts</th></tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/05-explore.jpg" width="190" alt="Explore" /><br/><sub>Explore</sub></td>
-    <td align="center"><img src="docs/screenshots/06-moods.jpg" width="190" alt="Moods &amp; moments" /><br/><sub>Moods &amp; moments</sub></td>
-    <td align="center"><img src="docs/screenshots/07-podcasts.jpg" width="190" alt="My podcasts" /><br/><sub>My podcasts</sub></td>
-    <td align="center"><img src="docs/screenshots/08-podcast-show.jpg" width="190" alt="Podcast show" /><br/><sub>Podcast show</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/05-explore.jpg" width="190" alt="Explore" /><br/><sub>Explore</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/06-moods.jpg" width="190" alt="Moods &amp; moments" /><br/><sub>Moods &amp; moments</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/07-podcasts.jpg" width="190" alt="My podcasts" /><br/><sub>My podcasts</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/08-podcast-show.jpg" width="190" alt="Podcast show" /><br/><sub>Podcast show</sub></td>
   </tr>
   <tr><th colspan="4">🎙️ Discover &amp; 📚 Library</th></tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/09-discover.jpg" width="190" alt="Discover podcasts" /><br/><sub>Discover podcasts</sub></td>
-    <td align="center"><img src="docs/screenshots/10-library.jpg" width="190" alt="Library &amp; pins" /><br/><sub>Library &amp; pins</sub></td>
-    <td align="center"><img src="docs/screenshots/11-library-radio.jpg" width="190" alt="Radio, on device, playlists" /><br/><sub>Radio, on device, playlists</sub></td>
-    <td align="center"><img src="docs/screenshots/12-library-artists.jpg" width="190" alt="Artists &amp; subscriptions" /><br/><sub>Artists &amp; subscriptions</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/09-discover.jpg" width="190" alt="Discover podcasts" /><br/><sub>Discover podcasts</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/10-library.jpg" width="190" alt="Library &amp; pins" /><br/><sub>Library &amp; pins</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/11-library-radio.jpg" width="190" alt="Radio, on device, playlists" /><br/><sub>Radio, on device, playlists</sub></td>
+    <td align="center"><img src="docs/screenshots/phone/12-library-artists.jpg" width="190" alt="Artists &amp; subscriptions" /><br/><sub>Artists &amp; subscriptions</sub></td>
   </tr>
 </table>
 
@@ -222,19 +222,19 @@ On tablets and unfolded foldables PAXwave switches to a sidebar and wider grids 
 
 <table align="center">
   <tr>
-    <td align="center"><img src="docs/screenshots/tablet-01-home.jpg" width="400" alt="Home" /><br/><sub>Home</sub></td>
-    <td align="center"><img src="docs/screenshots/tablet-02-home-radio.jpg" width="400" alt="Radio &amp; albums on Home" /><br/><sub>Radio &amp; albums on Home</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet/01-home.jpg" width="400" alt="Home" /><br/><sub>Home</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet/02-home-radio.jpg" width="400" alt="Radio &amp; albums on Home" /><br/><sub>Radio &amp; albums on Home</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/tablet-03-explore.jpg" width="400" alt="Explore" /><br/><sub>Explore</sub></td>
-    <td align="center"><img src="docs/screenshots/tablet-04-podcasts.jpg" width="400" alt="Podcasts" /><br/><sub>Podcasts</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet/03-explore.jpg" width="400" alt="Explore" /><br/><sub>Explore</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet/04-podcasts.jpg" width="400" alt="Podcasts" /><br/><sub>Podcasts</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/tablet-05-library.jpg" width="400" alt="Library" /><br/><sub>Library</sub></td>
-    <td align="center"><img src="docs/screenshots/tablet-06-library-on-device.jpg" width="400" alt="On device, playlists &amp; artists" /><br/><sub>On device, playlists &amp; artists</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet/05-library.jpg" width="400" alt="Library" /><br/><sub>Library</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet/06-library-on-device.jpg" width="400" alt="On device, playlists &amp; artists" /><br/><sub>On device, playlists &amp; artists</sub></td>
   </tr>
   <tr>
-    <td align="center" colspan="2"><img src="docs/screenshots/tablet-07-now-playing.jpg" width="600" alt="Now playing" /><br/><sub>Now playing</sub></td>
+    <td align="center" colspan="2"><img src="docs/screenshots/tablet/07-now-playing.jpg" width="600" alt="Now playing" /><br/><sub>Now playing</sub></td>
   </tr>
 </table>
 
