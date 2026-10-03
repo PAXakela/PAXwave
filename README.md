@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="banner.png" alt="PAXwave" width="100%" />
+<img src="paxwave-banner.png" alt="PAXwave" width="100%" />
 
 <p><b>Your music, your podcasts and the world's radio in one calm, private Android player.</b></p>
 
@@ -134,7 +134,9 @@ Most of us juggle three apps: one for music, one for podcasts, one for the radio
 all three into a single player with one queue, one search and one library, and keeps the
 design quiet so the music stays in front.
 
-- **No ads, no trackers, no PAXwave account.** PAXwave has no servers of its own.
+- **No built-in ads, no trackers, no PAXwave account.** PAXwave has no servers of its own and
+  never adds advertising of its own. (Podcasts and stations may carry their own; see
+  [About ads](#about-ads).)
 - **Free and open source** under the GPL-3.0. Every line is in this repository.
 - **Every release is built from this source** by GitHub Actions, in public (see [Install](#install)).
 
@@ -265,7 +267,7 @@ that the APK comes from exactly this code.
 
 ## Privacy
 
-- **No ads, no analytics, no tracking libraries.** PAXwave has no servers and no account.
+- **No built-in ads, no analytics, no tracking libraries.** PAXwave has no servers and no account.
 - **Your data stays on your phone:** library, podcast subscriptions, listening stats (Replay),
   settings and downloads.
 - PAXwave connects **directly** to the services it needs, and only for what you use:
@@ -274,6 +276,20 @@ that the APK comes from exactly this code.
   when you open lyrics.
 - Scrobbling and Discord status only run if you sign in to them.
 - You decide how much PAXwave does in the background: see [Battery](#-battery).
+
+### About ads
+
+PAXwave itself contains **no advertising, no ad SDKs and no tracking**, and never will. What you
+hear, though, comes straight from other people's content:
+
+- **Music (YouTube Music):** PAXwave plays the audio stream directly instead of using YouTube's
+  own player, so music normally plays **without YouTube's ads**. This is not guaranteed: it
+  depends on how YouTube delivers its service, which can change at any time.
+- **Podcasts:** many shows have ads or sponsor messages **recorded into the episode** by the
+  publisher. They are part of the audio file itself, so PAXwave plays them like the rest of the
+  episode and cannot remove them.
+- **Radio:** stations broadcast their **own ads and announcements** in the live stream, just as
+  on any other radio. PAXwave plays the stream as it is sent.
 
 ---
 
@@ -372,8 +388,10 @@ publisher or radio station, nor with any of their parent companies.
 - **Your responsibility:** PAXwave is made for personal, educational and research use. You are
   responsible for using it in line with the copyright laws of your country and the terms of the
   services you use, including YouTube's Terms of Service.
-- **No guarantees:** PAXwave aims for a clean, ad-free listening experience, but it cannot
-  promise that third-party services will keep working with it, or keep working the same way.
+- **No guarantees:** PAXwave adds no ads of its own and aims for a clean listening experience,
+  but it **does not guarantee an ad-free experience**. Podcasts and radio stations may include
+  their own ads within the episode or broadcast, and third-party services such as YouTube Music
+  may change how they work, or stop working with PAXwave, at any time (see [About ads](#about-ads)).
 - **Copyleft:** PAXwave is free software under the GPL-3.0. Anyone may share, modify or even sell
   copies, but every copy must come with its complete source code under the same licence.
 
