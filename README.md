@@ -32,8 +32,6 @@
 
 <div align="center">
 
-<a href="https://github.com/kushagrasinghx/BitChord"><img src="docs/images/bitchord-banner.jpg" alt="BitChord: All the music, none of the bloat" width="100%" /></a>
-
 </div>
 
 <img src="docs/images/bitchord-icon.png" alt="BitChord" width="72" align="left" />
