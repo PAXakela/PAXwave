@@ -33,7 +33,6 @@ import com.music.bitchord.ui.components.TopBarAccountButton
 import com.music.bitchord.ui.pax.DevicePills
 import com.music.bitchord.ui.pax.PaxChips
 import com.music.bitchord.ui.pax.PaxHomeSection
-import com.music.bitchord.ui.pax.PaxIntro
 import com.music.bitchord.ui.pax.PaxNowPlaying
 import com.music.bitchord.ui.pax.LibraryPaxContent
 import com.music.bitchord.ui.pax.LibraryFilter
@@ -185,9 +184,5 @@ class PaxShots {
                 TopBarAccountButton(account = Account("Nico", "n@x", null), onClick = {})
             }
         }
-    }
-
-    @Test fun intro() = captureRoboImage("build/shots/intro.png") {
-        BitChordTheme(darkTheme = true) { PaxIntro(ready = false, onFinished = {}) }
     }
 }

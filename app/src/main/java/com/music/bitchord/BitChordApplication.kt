@@ -48,6 +48,8 @@ class BitChordApplication : Application(), SingletonImageLoader.Factory {
         // share one keystore master key and a first launch must not have two
         // threads racing to create it. Joined before onCreate returns, so
         // nothing that runs after startup can see any of them half open.
+        // Before anything that reads it: the refresh schedule, the player, the UI.
+        com.music.bitchord.data.settings.BatterySaver.init(this)
         val backgroundInit = thread(name = "startup-init") {
             SourceRegistry.init(this)
             InnerTubeXResolver.init(this)

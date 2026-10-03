@@ -409,7 +409,7 @@ private fun StoryChrome(
                 painter = painterResource(R.drawable.ic_logo),
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.9f),
-                modifier = Modifier.size(width = 16.dp, height = 18.dp),
+                modifier = Modifier.size(width = 17.dp, height = 18.dp),
             )
             Spacer(Modifier.width(7.dp))
             Text(

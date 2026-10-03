@@ -312,8 +312,11 @@ fun CanvasArtworkPlayer(
     // folded into the one above: that one is keyed on [rendered] so it fires
     // again on every fade-in, and this one only needs to start once a fade-in
     // has actually happened and then keep going for as long as it holds.
-    LaunchedEffect(rendered, refreshFrameEveryMs, frameCapturePx, clipAspect, contentMode, alignPortraitTop) {
+    // PAXwave: not behind a locked screen either — the clip is paused there,
+    // so every capture copied the same frame for nothing.
+    LaunchedEffect(rendered, refreshFrameEveryMs, frameCapturePx, clipAspect, contentMode, alignPortraitTop, foreground) {
         val interval = refreshFrameEveryMs ?: return@LaunchedEffect
+        if (!foreground) return@LaunchedEffect
         Log.d(TAG, "periodic frame refresh started, interval=$interval")
         if (!rendered) return@LaunchedEffect
         while (isActive) {

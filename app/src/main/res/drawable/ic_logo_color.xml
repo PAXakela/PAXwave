@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- PAXwave launcher mark: the full-colour logo, centred, 46dp tall inside the 66dp adaptive-icon safe zone. -->
+<!-- PAXwave mark in full colour: warm white frame, silver bars, gold centre. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <group android:scaleX="0.080139" android:scaleY="0.080139" android:translateX="23.5871" android:translateY="25.5505">
+    android:width="24dp"
+    android:height="24.91dp"
+    android:viewportWidth="553"
+    android:viewportHeight="574">
+    <group android:scaleX="1.000000" android:scaleY="1.000000" android:translateX="-103.0000" android:translateY="-68.0000">
         <path android:pathData="M122,68 L546,68 A110,110 0 0 1 656,178 L656,532 A110,110 0 0 1 546,642 L124,642 L202,564 L526,564 A52,52 0 0 0 578,512 L578,198 A52,52 0 0 0 526,146 L200,146 Z">
             <aapt:attr name="android:fillColor">
                 <gradient android:type="linear" android:startX="0" android:startY="68.00" android:endX="0" android:endY="642.00">

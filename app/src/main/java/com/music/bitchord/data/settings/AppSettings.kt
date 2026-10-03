@@ -12,7 +12,14 @@ import com.music.bitchord.data.lyrics.LyricsSource
 import com.music.bitchord.data.sources.SourceKind
 import com.music.bitchord.playback.EqLayout
 import com.music.bitchord.playback.EqualizerPreset
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
 /**
  * Stream bitrate ceiling on the YouTube fallback path — MEDIUM, HIGH and
@@ -124,6 +131,12 @@ enum class ThemeMode(val label: String) {
 }
 
 /**
+ * PAXwave: which layout the app uses. AUTO picks the tablet layout on a
+ * tablet or an unfolded foldable; the other two force one or the other.
+ */
+enum class TabletLayout { AUTO, TABLET, PHONE }
+
+/**
  * Which of the equaliser's two tabs is driving the sound.
  *
  * One at a time rather than both at once: they are two ways of describing the
@@ -205,6 +218,7 @@ enum class LastPlayerScreen {
 object AppSettings {
 
     private lateinit var prefs: SharedPreferences
+    private val settingsScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     /** Only for the Discord, WebDAV and SMB secrets — everything else on here is plain prefs. */
     private lateinit var authStore: AuthStore
@@ -394,6 +408,9 @@ object AppSettings {
     val playbackSpeed = MutableStateFlow(1.0f)
     val themeMode = MutableStateFlow(ThemeMode.DARK)
 
+    /** See [TabletLayout]. */
+    val tabletLayout = MutableStateFlow(TabletLayout.AUTO)
+
     /** Keep playing similar music once the queue runs out. */
     val autoplay = MutableStateFlow(true)
 
@@ -407,10 +424,18 @@ object AppSettings {
     val showNerdStats = MutableStateFlow(false)
 
     /** Freezes the main player's mesh gradient instead of letting it drift/crossfade. */
-    val reduceAnimation = MutableStateFlow(false)
+    val reduceAnimationPref = MutableStateFlow(false)
+
+    /** What the app actually uses: [reduceAnimationPref], unless battery saver overrides it. See [BatterySaver]. */
+    val reduceAnimation: StateFlow<Boolean> = combine(reduceAnimationPref, BatterySaver.active) { v, saver -> v || saver }
+        .stateIn(settingsScope, SharingStarted.Eagerly, false)
 
     /** Requests a sustained high-refresh UI. Off keeps Android's automatic policy. */
-    val highPerformanceMode = MutableStateFlow(false)
+    val highPerformanceModePref = MutableStateFlow(false)
+
+    /** What the app actually uses: [highPerformanceModePref], unless battery saver overrides it. See [BatterySaver]. */
+    val highPerformanceMode: StateFlow<Boolean> = combine(highPerformanceModePref, BatterySaver.active) { v, saver -> v && !saver }
+        .stateIn(settingsScope, SharingStarted.Eagerly, false)
 
     /** Preferred UI refresh rate while [highPerformanceMode] is enabled. */
     val performanceRefreshRate = MutableStateFlow(DEFAULT_PERFORMANCE_REFRESH_RATE)
@@ -441,13 +466,25 @@ object AppSettings {
     val smartVersionAlignment = MutableStateFlow(true)
 
     /** Drops haze blur (status bar, mini player, bottom fade, lyrics focus) for a solid-fill look. */
-    val reduceDynamicBlur = MutableStateFlow(false)
+    val reduceDynamicBlurPref = MutableStateFlow(false)
+
+    /** What the app actually uses: [reduceDynamicBlurPref], unless battery saver overrides it. See [BatterySaver]. */
+    val reduceDynamicBlur: StateFlow<Boolean> = combine(reduceDynamicBlurPref, BatterySaver.active) { v, saver -> v || saver }
+        .stateIn(settingsScope, SharingStarted.Eagerly, false)
 
     /** Real backdrop-sampled glass (blur, lens refraction) on the floating nav bar, Android 12+ only. */
-    val liquidGlass = MutableStateFlow(false)
+    val liquidGlassPref = MutableStateFlow(false)
+
+    /** What the app actually uses: [liquidGlassPref], unless battery saver overrides it. See [BatterySaver]. */
+    val liquidGlass: StateFlow<Boolean> = combine(liquidGlassPref, BatterySaver.active) { v, saver -> v && !saver }
+        .stateIn(settingsScope, SharingStarted.Eagerly, false)
 
     /** Blurs unfocused lyric lines, keeping the active line sharp. */
-    val lyricsBlur = MutableStateFlow(true)
+    val lyricsBlurPref = MutableStateFlow(true)
+
+    /** What the app actually uses: [lyricsBlurPref], unless battery saver overrides it. See [BatterySaver]. */
+    val lyricsBlur: StateFlow<Boolean> = combine(lyricsBlurPref, BatterySaver.active) { v, saver -> v && !saver }
+        .stateIn(settingsScope, SharingStarted.Eagerly, true)
 
     /** Positive values delay synced lyrics; negative values bring them forward. */
     val lyricsOffsetMs = MutableStateFlow(0)
@@ -472,7 +509,11 @@ object AppSettings {
      * but it is the better default, and most tracks resolve to no canvas at
      * all. See [CanvasRepository][com.music.bitchord.data.canvas.CanvasRepository].
      */
-    val animatedCanvas = MutableStateFlow(true)
+    val animatedCanvasPref = MutableStateFlow(true)
+
+    /** What the app actually uses: [animatedCanvasPref], unless battery saver overrides it. See [BatterySaver]. */
+    val animatedCanvas: StateFlow<Boolean> = combine(animatedCanvasPref, BatterySaver.active) { v, saver -> v && !saver }
+        .stateIn(settingsScope, SharingStarted.Eagerly, true)
 
     /**
      * Whether [animatedCanvas] is allowed to actually stream on a metered
@@ -849,12 +890,15 @@ object AppSettings {
         themeMode.value = runCatching {
             ThemeMode.valueOf(prefs.getString(KEY_THEME, null) ?: "DARK")
         }.getOrDefault(ThemeMode.DARK)
+        tabletLayout.value = runCatching {
+            TabletLayout.valueOf(prefs.getString(KEY_TABLET_LAYOUT, null) ?: "AUTO")
+        }.getOrDefault(TabletLayout.AUTO)
         autoplay.value = prefs.getBoolean(KEY_AUTOPLAY, true)
         shuffleEnabled.value = prefs.getBoolean(KEY_SHUFFLE_ENABLED, false)
         repeatMode.value = prefs.getInt(KEY_REPEAT_MODE, Player.REPEAT_MODE_OFF)
         showNerdStats.value = prefs.getBoolean(KEY_NERD_STATS, false)
-        reduceAnimation.value = prefs.getBoolean(KEY_REDUCE_ANIMATION, false)
-        highPerformanceMode.value = prefs.getBoolean(KEY_HIGH_PERFORMANCE_MODE, false)
+        reduceAnimationPref.value = prefs.getBoolean(KEY_REDUCE_ANIMATION, false)
+        highPerformanceModePref.value = prefs.getBoolean(KEY_HIGH_PERFORMANCE_MODE, false)
         performanceRefreshRate.value = normalizePerformanceRefreshRate(
             prefs.getInt(KEY_PERFORMANCE_REFRESH_RATE, DEFAULT_PERFORMANCE_REFRESH_RATE),
         )
@@ -865,17 +909,17 @@ object AppSettings {
         dontRepeatSuggestions.value = prefs.getBoolean(KEY_DONT_REPEAT_SUGGESTIONS, false)
         preferMusicOnly.value = prefs.getBoolean(KEY_PREFER_MUSIC_ONLY, false)
         smartVersionAlignment.value = prefs.getBoolean(KEY_SMART_VERSION_ALIGNMENT, true)
-        reduceDynamicBlur.value = prefs.getBoolean(KEY_REDUCE_BLUR, false)
-        liquidGlass.value = prefs.getBoolean(KEY_LIQUID_GLASS, false)
-        lyricsBlur.value = prefs.getBoolean(KEY_LYRICS_BLUR, true)
+        reduceDynamicBlurPref.value = prefs.getBoolean(KEY_REDUCE_BLUR, false)
+        liquidGlassPref.value = prefs.getBoolean(KEY_LIQUID_GLASS, false)
+        lyricsBlurPref.value = prefs.getBoolean(KEY_LYRICS_BLUR, true)
         lyricsOffsetMs.value = prefs.getInt(KEY_LYRICS_OFFSET_MS, 0)
             .coerceIn(MIN_LYRICS_OFFSET_MS, MAX_LYRICS_OFFSET_MS)
         translationLanguage.value = prefs.getString(KEY_TRANSLATION_LANGUAGE, "").orEmpty()
-        if (highPerformanceMode.value) {
-            reduceAnimation.value = false
-            reduceDynamicBlur.value = false
+        if (highPerformanceModePref.value) {
+            reduceAnimationPref.value = false
+            reduceDynamicBlurPref.value = false
         }
-        animatedCanvas.value = prefs.getBoolean(KEY_ANIMATED_CANVAS, true)
+        animatedCanvasPref.value = prefs.getBoolean(KEY_ANIMATED_CANVAS, true)
         canvasOverCellular.value = prefs.getBoolean(KEY_CANVAS_OVER_CELLULAR, false)
         spotifyCanvasAutoHide.value = prefs.getBoolean(KEY_SPOTIFY_CANVAS_AUTO_HIDE, true)
         prioritizeSpotifyCanvas.value = prefs.getBoolean(KEY_PRIORITIZE_SPOTIFY_CANVAS, false)
@@ -1048,10 +1092,16 @@ object AppSettings {
                 object : ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: Network) = refresh()
                     override fun onLost(network: Network) = refresh()
+                    // Read off the capabilities handed in rather than asking the
+                    // system again: on mobile data this fires with every change
+                    // in signal strength, and each refresh() is two binder calls.
                     override fun onCapabilitiesChanged(
                         network: Network,
                         capabilities: NetworkCapabilities,
-                    ) = refresh()
+                    ) {
+                        meteredConnection.value =
+                            !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
+                    }
                 },
             )
         }
@@ -1210,9 +1260,14 @@ object AppSettings {
         prefs.edit().putString(KEY_THEME, value.name).apply()
     }
 
+    fun setTabletLayout(value: TabletLayout) {
+        tabletLayout.value = value
+        prefs.edit().putString(KEY_TABLET_LAYOUT, value.name).apply()
+    }
+
     fun setReduceAnimation(value: Boolean) {
-        reduceAnimation.value = value
-        if (value) highPerformanceMode.value = false
+        reduceAnimationPref.value = value
+        if (value) highPerformanceModePref.value = false
         val editor = prefs.edit().putBoolean(KEY_REDUCE_ANIMATION, value)
         if (value) editor.putBoolean(KEY_HIGH_PERFORMANCE_MODE, false)
         editor.apply()
@@ -1254,23 +1309,23 @@ object AppSettings {
     }
 
     fun setReduceDynamicBlur(value: Boolean) {
-        reduceDynamicBlur.value = value
-        if (value) highPerformanceMode.value = false
+        reduceDynamicBlurPref.value = value
+        if (value) highPerformanceModePref.value = false
         val editor = prefs.edit().putBoolean(KEY_REDUCE_BLUR, value)
         if (value) editor.putBoolean(KEY_HIGH_PERFORMANCE_MODE, false)
         editor.apply()
     }
 
     fun setLiquidGlass(value: Boolean) {
-        liquidGlass.value = value
+        liquidGlassPref.value = value
         prefs.edit().putBoolean(KEY_LIQUID_GLASS, value).apply()
     }
 
     fun setHighPerformanceMode(value: Boolean) {
-        highPerformanceMode.value = value
+        highPerformanceModePref.value = value
         if (value) {
-            reduceAnimation.value = false
-            reduceDynamicBlur.value = false
+            reduceAnimationPref.value = false
+            reduceDynamicBlurPref.value = false
         }
         val editor = prefs.edit().putBoolean(KEY_HIGH_PERFORMANCE_MODE, value)
         if (value) {
@@ -1287,7 +1342,7 @@ object AppSettings {
     }
 
     fun setLyricsBlur(value: Boolean) {
-        lyricsBlur.value = value
+        lyricsBlurPref.value = value
         prefs.edit().putBoolean(KEY_LYRICS_BLUR, value).apply()
     }
 
@@ -1407,7 +1462,7 @@ object AppSettings {
     }
 
     fun setAnimatedCanvas(value: Boolean) {
-        animatedCanvas.value = value
+        animatedCanvasPref.value = value
         prefs.edit().putBoolean(KEY_ANIMATED_CANVAS, value).apply()
     }
 
@@ -1952,6 +2007,7 @@ object AppSettings {
     private const val KEY_EQ_BALANCE = "equalizer_balance"
     private const val KEY_EQ_BANDS = "equalizer_bands"
     private const val KEY_SPEED = "playback_speed"
+    private const val KEY_TABLET_LAYOUT = "tablet_layout"
     private const val KEY_THEME = "theme_mode"
     private const val KEY_AUTOPLAY = "autoplay"
     private const val KEY_SHUFFLE_ENABLED = "shuffle_enabled"

@@ -139,6 +139,8 @@ fun RadioScreen(controller: MediaController?, contentPadding: PaddingValues) {
             ?: RadioStation(id.removePrefix(PaxMedia.RADIO_PREFIX), nowPlaying.title.orEmpty(), "", nowPlaying.artworkUrl)
     }
 
+    val favColumns = paxGridColumns(phone = 4, minTileWidth = 96.dp, maxColumns = 10)
+    val favRows = remember(favourites, favColumns) { favourites.chunked(favColumns) }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = contentPadding) {
         if (current != null) {
             item(key = "on-air") {
@@ -215,12 +217,12 @@ fun RadioScreen(controller: MediaController?, contentPadding: PaddingValues) {
         if (favourites.isEmpty()) {
             item(key = "fav-e") { PaxEmpty(stringResource(R.string.pax_no_favourites)) }
         } else {
-            items(favourites.chunked(4).size, key = { "fav-row-$it" }) { index ->
+            items(favRows.size, key = { "fav-row-$it" }) { index ->
                 Row(
                     Modifier.fillMaxWidth().padding(horizontal = PAGE_GUTTER, vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    val row = favourites.chunked(4)[index]
+                    val row = favRows[index]
                     row.forEach { station ->
                         StationTile(
                             station,
@@ -231,7 +233,7 @@ fun RadioScreen(controller: MediaController?, contentPadding: PaddingValues) {
                             size = 76.dp,
                         )
                     }
-                    repeat(4 - row.size) { Spacer(Modifier.width(76.dp)) }
+                    repeat(favColumns - row.size) { Spacer(Modifier.width(76.dp)) }
                 }
             }
         }

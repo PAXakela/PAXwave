@@ -16,8 +16,9 @@ of the GPL requires this file to state:
 
 PAXwave's modifications: podcasts (RSS, discover, queue, downloads,
 auto-download, AutoPlay, sleep timer), internet radio, categorised search,
-its own navigation, library, cards, start animation and logo; Listen Together
-and the in-app update check are not included.
+its own navigation, library, Explore page, cards, loading animation and logo,
+and battery settings; Listen Together and the in-app update check are not
+included.
 
 Third-party components and their licences:
   Echo Music (EchoMusicApp), glass nav bar  GPL-3.0
@@ -54,6 +55,9 @@ The track-analysis files ported from Orchard (playback/smart/ and
 native/analyzer/, marked in their headers) are licensed under the GNU Affero
 General Public License, version 3 or later, and are combined with the rest
 of PAXwave as section 13 of the GPL-3.0 permits.
+
+The full licence texts and copyright notices for all of the above are in
+THIRD_PARTY_LICENSES.txt.
 
 Services: Radio Browser (radio-browser.info), Apple Podcasts directory,
 podcast feeds (© their creators), YouTube Music. PAXwave is not affiliated

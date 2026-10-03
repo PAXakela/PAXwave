@@ -1,5 +1,8 @@
 package com.music.bitchord.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -56,6 +59,7 @@ import androidx.compose.material.icons.rounded.Radio
 import androidx.compose.material.icons.rounded.Podcasts
 import com.music.bitchord.ui.icons.BitChordIcons
 import com.music.bitchord.R
+import com.music.bitchord.ui.pax.PaxLoadingWave
 import coil3.compose.AsyncImage
 import com.music.bitchord.data.model.CARD_ART_PX
 import com.music.bitchord.data.model.HEADER_ART_PX
@@ -129,12 +133,25 @@ fun HomeScreen(
             contentPadding = contentPadding,
         ) {
             item {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.displayLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
+                Row(
                     modifier = Modifier.padding(horizontal = PAGE_GUTTER, vertical = 8.dp),
-                )
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.displayLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    // PAXwave: a small sound wave beside the title while the
+                    // feed is loading, fading out once it lands.
+                    AnimatedVisibility(
+                        visible = state is UiState.Loading,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                    ) {
+                        PaxLoadingWave(Modifier.padding(start = 14.dp))
+                    }
+                }
             }
             if (!signedIn && onSignIn != null) {
                 item {

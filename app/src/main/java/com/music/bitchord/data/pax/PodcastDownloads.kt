@@ -98,7 +98,11 @@ object PodcastDownloads {
 
     fun isDownloaded(episodeId: String): Boolean = localUri(episodeId) != null
 
-    fun download(show: Podcast, episode: PodcastEpisode) {
+    /**
+     * Queues [episode] with the system download manager. An [automatic] one
+     * follows the battery settings: Wi-Fi only and/or only while charging.
+     */
+    fun download(show: Podcast, episode: PodcastEpisode, automatic: Boolean = false) {
         val context = app ?: return
         val existing = _records.value[episode.id]
         if (existing != null && existing.status != Status.FAILED) return
@@ -113,8 +117,9 @@ object PodcastDownloads {
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
                 .setDestinationUri(Uri.fromFile(target))
                 .addRequestHeader("User-Agent", PaxMedia.USER_AGENT)
-                .setAllowedOverMetered(true)
+                .setAllowedOverMetered(!(automatic && com.music.bitchord.data.settings.BatterySaver.podcastRefreshWifiOnly.value))
                 .setAllowedOverRoaming(false)
+                .setRequiresCharging(automatic && com.music.bitchord.data.settings.BatterySaver.podcastRefreshWhileCharging.value)
         }.getOrElse {
             Log.w(TAG, "cannot download ${episode.audioUrl}: ${it.message}")
             return
@@ -192,6 +197,9 @@ object PodcastDownloads {
      * are recent, unfinished and never fetched before.
      */
     fun autoDownload(podcasts: List<Podcast>, progress: Map<String, EpisodeProgress>, enabled: Set<String>) {
+        // Battery saver holds automatic downloads back; nothing is marked as
+        // tried, so the next refresh outside battery saver picks them up.
+        if (com.music.bitchord.data.settings.BatterySaver.active.value) return
         val weekAgo = System.currentTimeMillis() - 7L * 24 * 60 * 60 * 1000
         var added = false
         podcasts.filter { it.key in enabled }.forEach { show ->
@@ -199,7 +207,7 @@ object PodcastDownloads {
                 .filter { (it.publishedAt ?: 0L) >= weekAgo || show.subscribedAt >= weekAgo }
                 .filter { progress[it.id]?.played != true && it.id !in attempted && _records.value[it.id] == null }
                 .forEach { episode ->
-                    download(show, episode)
+                    download(show, episode, automatic = true)
                     attempted += episode.id
                     added = true
                 }

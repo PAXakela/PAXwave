@@ -1,12 +1,20 @@
 package com.music.bitchord.ui.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameMillis
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import com.music.bitchord.ui.theme.PaxAqua
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
@@ -40,8 +47,11 @@ import androidx.compose.ui.unit.dp
  * the real rows and cards so nothing jumps when the data lands.
  */
 
-/** How long one highlight sweep takes to cross a placeholder. */
-private const val SHIMMER_PERIOD_MS = 1400
+/** One full shimmer cycle: the sweep across the screen, then a short rest. */
+private const val SHIMMER_PERIOD_MS = 1700
+
+/** The share of [SHIMMER_PERIOD_MS] the light spends moving; the rest is a pause. */
+private const val SHIMMER_SWEEP_SHARE = 0.78f
 
 private val BlockShape = RoundedCornerShape(6.dp)
 private val LineShape = RoundedCornerShape(4.dp)
@@ -51,39 +61,71 @@ private val TitleWidths = listOf(0.68f, 0.46f, 0.58f, 0.74f, 0.52f)
 private val SubtitleWidths = listOf(0.34f, 0.44f, 0.27f, 0.38f, 0.31f)
 
 /**
- * One placeholder block, with a highlight sweeping across it.
+ * The shimmer's position in its cycle, 0..1, taken from the frame clock.
  *
- * The sweep is read inside the draw block rather than the composable body: a
- * screenful of these would otherwise recompose on every animation frame, and
- * all any of them needs per frame is a fresh gradient.
+ * Every placeholder reads the same frame time, so all of them agree on the
+ * phase: one band of light travels across the whole screen instead of each
+ * block flickering on its own schedule.
+ */
+@Composable
+private fun rememberShimmerPhase(): State<Float> {
+    val phase = remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            withFrameMillis { t -> phase.floatValue = (t % SHIMMER_PERIOD_MS).toFloat() / SHIMMER_PERIOD_MS }
+        }
+    }
+    return phase
+}
+
+/**
+ * One placeholder block, lit by a diagonal band of light that sweeps across the
+ * screen.
+ *
+ * The band is laid out in window coordinates, so neighbouring blocks show
+ * consecutive slices of the same sweep. The phase and position are read in the
+ * draw phase only: a screenful of these redraws each frame but never recomposes.
  */
 @Composable
 fun ShimmerBox(modifier: Modifier = Modifier, shape: Shape = BlockShape) {
     val base = MaterialTheme.colorScheme.surfaceVariant
-    val highlight = MaterialTheme.colorScheme.onSurfaceVariant
-        .copy(alpha = 0.16f)
-        .compositeOver(base)
-    val sweep = rememberInfiniteTransition(label = "skeleton").animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(SHIMMER_PERIOD_MS, easing = LinearEasing)),
-        label = "sweep",
-    )
+    val light = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.13f).compositeOver(base)
+    val glint = PaxAqua.copy(alpha = 0.12f).compositeOver(light)
+    val colors = remember(base, light, glint) { listOf(base, light, glint, light, base) }
+    val phase = rememberShimmerPhase()
+    val origin = remember { floatArrayOf(0f, 0f) }
+    val screen = with(LocalDensity.current) {
+        val config = LocalConfiguration.current
+        config.screenWidthDp.dp.toPx() to config.screenHeightDp.dp.toPx()
+    }
     Box(
         modifier
             .clip(shape)
-            .drawWithCache {
-                // The band travels from fully off one edge to fully off the
-                // other, which leaves a beat of flat grey between passes rather
-                // than a highlight permanently parked somewhere on the block.
-                val band = size.width * 0.5f
-                val startX = -band + sweep.value * (size.width + band * 2)
-                val brush = Brush.horizontalGradient(
-                    colors = listOf(base, highlight, base),
-                    startX = startX,
-                    endX = startX + band,
+            .onGloballyPositioned { coords ->
+                val pos = coords.positionInRoot()
+                origin[0] = pos.x
+                origin[1] = pos.y
+            }
+            .drawBehind {
+                val (screenW, screenH) = screen
+                val band = screenW * 0.42f
+                val slope = 0.45f
+                val sweep = (phase.value / SHIMMER_SWEEP_SHARE).coerceAtMost(1f)
+                val eased = FastOutSlowInEasing.transform(sweep)
+                // The band's centre runs from fully off the left edge to fully
+                // past the bottom-right corner, slanted so lower rows light up
+                // a moment after the ones above them.
+                val travel = screenW + screenH * slope + band * 2
+                val centre = -band + eased * travel
+                val sx = centre - band - origin[0]
+                val sy = -origin[1]
+                drawRect(
+                    Brush.linearGradient(
+                        colors = colors,
+                        start = Offset(sx, sy),
+                        end = Offset(sx + band * 2, sy + band * 2 * slope),
+                    ),
                 )
-                onDrawBehind { drawRect(brush) }
             },
     )
 }

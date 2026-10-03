@@ -637,6 +637,11 @@ object ListenTogether {
             releaseStaleSlot(code, saved)
         }
 
+        // PAXwave has no Listen Together server. Without one there is nothing
+        // to health-check, and the monitor below woke the app every 10-30 s and
+        // on every network change (constantly, on mobile data) for nothing.
+        if (_effectiveIdleServer.value.isBlank()) return
+
         val manager = context.getSystemService(ConnectivityManager::class.java)
         if (manager != null) {
             runCatching {

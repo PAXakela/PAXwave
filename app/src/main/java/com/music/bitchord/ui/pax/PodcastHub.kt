@@ -105,6 +105,7 @@ fun PodcastHubScreen(
     }
 
     val playing = nowPlaying.mediaId?.let { PodcastStore.findEpisode(it) }
+    val showColumns = paxGridColumns(phone = 3, minTileWidth = 150.dp)
 
     fun play(show: Podcast, episode: PodcastEpisode) {
         controller?.let { c -> scope.launch { PaxPlayer.playEpisode(c, show, episode) } }
@@ -171,6 +172,7 @@ fun PodcastHubScreen(
                 onRefresh = { scope.launch { PodcastStore.refreshAll() } },
                 onOpenShow = onOpenShow,
                 onDiscover = { onSegmentChange(PodcastSegment.DISCOVER) },
+                showColumns = showColumns,
             )
             PodcastSegment.NEW -> {
                 val fresh = newEpisodes(podcasts, progress)
@@ -240,6 +242,7 @@ private fun LazyListScope.showsSegment(
     onRefresh: () -> Unit,
     onOpenShow: OpenShow,
     onDiscover: () -> Unit,
+    showColumns: Int,
 ) {
     item(key = "shows-head") {
         Row(
@@ -272,7 +275,8 @@ private fun LazyListScope.showsSegment(
         return
     }
     val sorted = podcasts.sortedByDescending { it.episodes.firstOrNull()?.publishedAt ?: 0L }
-    val rows = (sorted.map<Podcast, Podcast?> { it } + listOf(null)).chunked(3)
+    val columns = showColumns
+    val rows = (sorted.map<Podcast, Podcast?> { it } + listOf(null)).chunked(columns)
     items(rows.size, key = { "shows-row-$it" }) { index ->
         Row(
             Modifier.fillMaxWidth().padding(horizontal = PAGE_GUTTER, vertical = 8.dp),
@@ -290,7 +294,7 @@ private fun LazyListScope.showsSegment(
                     AddShowTile(onClick = onDiscover, modifier = Modifier.weight(1f))
                 }
             }
-            repeat(3 - rows[index].size) { Spacer(Modifier.weight(1f)) }
+            repeat(columns - rows[index].size) { Spacer(Modifier.weight(1f)) }
         }
     }
 }
@@ -553,7 +557,8 @@ private fun DiscoverGrid(
     onClick: (DiscoverCell) -> Unit,
 ) {
     val titles = remember(podcasts) { podcasts.map { it.title.lowercase() }.toSet() }
-    cells.chunked(3).forEach { row ->
+    val columns = paxGridColumns(phone = 3, minTileWidth = 150.dp)
+    cells.chunked(columns).forEach { row ->
         Row(
             Modifier.fillMaxWidth().padding(horizontal = PAGE_GUTTER, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -578,7 +583,7 @@ private fun DiscoverGrid(
                     }
                 }
             }
-            repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+            repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
         }
     }
 }

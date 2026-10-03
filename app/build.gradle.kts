@@ -81,8 +81,8 @@ android {
         // Haze falls back to a translucent scrim below that.
         minSdk = 26
         targetSdk = 36
-        versionCode = 24
-        versionName = "1.9-paxwave"
+        versionCode = 30
+        versionName = "1.14"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -94,6 +94,13 @@ android {
             "LISTEN_TOGETHER_SERVER",
             "\"${listenTogetherServer.replace("\\", "\\\\").replace("\"", "\\\"")}\"",
         )
+    }
+
+    // No Google-encrypted dependency report in the APK or bundle: it is only
+    // readable by Google Play, and app stores such as IzzyOnDroid ask for it off.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     splits {

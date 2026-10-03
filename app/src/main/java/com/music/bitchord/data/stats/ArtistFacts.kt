@@ -107,15 +107,24 @@ object ArtistFacts {
             load()
             worker()
         }
-        // Writes are on a timer rather than one per answer. The cache holds
+        // Writes are batched rather than one per answer. The cache holds
         // every artist ever played, so rewriting it after each lookup meant a
         // few hundred kilobytes per artist during a backfill — for a file that
-        // is only read once, at launch.
-        scope.launch {
-            while (true) {
-                delay(SAVE_INTERVAL_MS)
-                save()
-            }
+        // is only read once, at launch. See [scheduleSave].
+    }
+
+    private var saveJob: kotlinx.coroutines.Job? = null
+
+    /**
+     * Writes the cache [SAVE_INTERVAL_MS] after the first change since the last
+     * write. PAXwave: this used to be a timer that woke every five seconds for
+     * as long as the app lived, whether or not anything had changed.
+     */
+    private fun scheduleSave() {
+        if (saveJob?.isActive == true) return
+        saveJob = scope.launch {
+            delay(SAVE_INTERVAL_MS)
+            save()
         }
     }
 
@@ -226,6 +235,7 @@ object ArtistFacts {
             cardAt = System.currentTimeMillis(),
         )
         dirty = true
+        scheduleSave()
     }
 
     private fun fetchGenres(name: String) {
@@ -254,6 +264,7 @@ object ArtistFacts {
         val entry = known[key(name)] ?: StoredArtist(key = key(name))
         known[key(name)] = entry.copy(genres = genres, genresAt = System.currentTimeMillis())
         dirty = true
+        scheduleSave()
     }
 
     /**

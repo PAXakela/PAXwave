@@ -303,6 +303,8 @@ fun FrostedTopBar(
                         )
                     }
                 }
+            } else if (com.music.bitchord.ui.pax.LocalTabletMode.current) {
+                // Tablet mode: the logo heads the sidebar instead.
             } else if (useFloatingChrome) {
                 FloatingAppMark(
                     hazeState = backButtonHazeState,
@@ -383,7 +385,7 @@ private fun FloatingAppMark(
                 .then(artworkPageSurface(shape = CircleShape, hazeState = hazeState)),
             contentAlignment = Alignment.Center,
         ) {
-            PaxwaveMark(Modifier.size(width = 19.dp, height = 22.dp))
+            PaxwaveMark(height = 22.dp)
         }
         if (BuildConfig.FLAVOR == "dev") {
             Text(
@@ -697,15 +699,10 @@ private val PUCK_OVERSHOOT = 20.dp
 private val AVATAR_SIZE = 28.dp
 
 /**
- * The app's mark in the top bar: just the logo, white, at the height of the
- * bar's other glyphs — no tile behind it and no name beside it.
+ * The app's mark in the top bar: just the logo, at the height of the bar's
+ * other glyphs — no tile behind it and no name beside it.
  */
 @Composable
-fun PaxwaveMark(modifier: Modifier = Modifier) {
-    Image(
-        painter = painterResource(R.drawable.ic_logo),
-        contentDescription = null,
-        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-        modifier = modifier.size(width = 23.dp, height = 26.dp),
-    )
+fun PaxwaveMark(modifier: Modifier = Modifier, height: androidx.compose.ui.unit.Dp = 27.dp) {
+    com.music.bitchord.ui.pax.PaxLogo(height = height, modifier = modifier)
 }

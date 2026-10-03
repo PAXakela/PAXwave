@@ -32,6 +32,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.automirrored.rounded.VolumeOff
 import androidx.compose.material.icons.rounded.Animation
+import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.BatterySaver
+import androidx.compose.material.icons.rounded.Downloading
+import androidx.compose.material.icons.rounded.Podcasts
+import androidx.compose.material.icons.rounded.TabletAndroid
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BlurOff
@@ -137,6 +142,7 @@ import com.music.bitchord.data.NerdStats
 import com.music.bitchord.data.scrobbling.LastFM
 import com.music.bitchord.data.listentogether.ListenTogether
 import com.music.bitchord.data.settings.AppSettings
+import com.music.bitchord.data.settings.BatterySaver
 import com.music.bitchord.data.settings.OutputPcmMode
 import com.music.bitchord.playback.AudioOutputStatus
 import com.music.bitchord.data.settings.AutomixPerformanceMode
@@ -144,6 +150,7 @@ import com.music.bitchord.R
 import com.music.bitchord.data.sources.DeviceCodecs
 import com.music.bitchord.data.settings.AudioQuality
 import com.music.bitchord.data.settings.DownloadQuality
+import com.music.bitchord.data.settings.TabletLayout
 import com.music.bitchord.data.settings.ThemeMode
 import com.music.bitchord.data.stats.Backup
 import com.music.bitchord.playback.AudioCache
@@ -196,12 +203,12 @@ fun SettingsScreen(
     val dolbyAtmosSupported = DeviceCodecs.playsDolbyAtmos
     val spatialAudio by AppSettings.spatialAudio.collectAsStateWithLifecycle()
     val nerdStats by AppSettings.showNerdStats.collectAsStateWithLifecycle()
-    val reduceAnimation by AppSettings.reduceAnimation.collectAsStateWithLifecycle()
-    val reduceDynamicBlur by AppSettings.reduceDynamicBlur.collectAsStateWithLifecycle()
-    val liquidGlass by AppSettings.liquidGlass.collectAsStateWithLifecycle()
+    val reduceAnimation by AppSettings.reduceAnimationPref.collectAsStateWithLifecycle()
+    val reduceDynamicBlur by AppSettings.reduceDynamicBlurPref.collectAsStateWithLifecycle()
+    val liquidGlass by AppSettings.liquidGlassPref.collectAsStateWithLifecycle()
     val liquidGlassSupported = isGlassSupported()
-    val lyricsBlur by AppSettings.lyricsBlur.collectAsStateWithLifecycle()
-    val animatedCanvas by AppSettings.animatedCanvas.collectAsStateWithLifecycle()
+    val lyricsBlur by AppSettings.lyricsBlurPref.collectAsStateWithLifecycle()
+    val animatedCanvas by AppSettings.animatedCanvasPref.collectAsStateWithLifecycle()
     val canvasOverCellular by AppSettings.canvasOverCellular.collectAsStateWithLifecycle()
     val fullBleedArtwork by AppSettings.fullBleedArtwork.collectAsStateWithLifecycle()
     val legacyMeshGradient by AppSettings.legacyMeshGradient.collectAsStateWithLifecycle()
@@ -209,6 +216,7 @@ fun SettingsScreen(
     val lyricsSources by AppSettings.lyricsSources.collectAsStateWithLifecycle()
     val translationLanguage by AppSettings.translationLanguage.collectAsStateWithLifecycle()
     val theme by AppSettings.themeMode.collectAsStateWithLifecycle()
+    val tabletLayout by AppSettings.tabletLayout.collectAsStateWithLifecycle()
     val sessionId by AppSettings.audioSessionId.collectAsStateWithLifecycle()
     val outputPcmMode by AppSettings.outputPcmMode.collectAsStateWithLifecycle()
     val preferUsbDac by AppSettings.preferUsbDac.collectAsStateWithLifecycle()
@@ -229,7 +237,20 @@ fun SettingsScreen(
     val smartVersionAlignment by AppSettings.smartVersionAlignment.collectAsStateWithLifecycle()
     val filterNonMusicAudio by AppSettings.filterNonMusicAudio.collectAsStateWithLifecycle()
     val localMusicFolderUri by AppSettings.localMusicFolderUri.collectAsStateWithLifecycle()
-    val highPerformanceMode by AppSettings.highPerformanceMode.collectAsStateWithLifecycle()
+    val highPerformanceMode by AppSettings.highPerformanceModePref.collectAsStateWithLifecycle()
+    // PAXwave battery settings.
+    val saverActive by BatterySaver.active.collectAsStateWithLifecycle()
+    val saverManual by BatterySaver.manual.collectAsStateWithLifecycle()
+    val saverFollowSystem by BatterySaver.followSystem.collectAsStateWithLifecycle()
+    val systemPowerSave by BatterySaver.systemPowerSave.collectAsStateWithLifecycle()
+    val analysisOnlyCharging by BatterySaver.analysisOnlyWhileCharging.collectAsStateWithLifecycle()
+    val preloadUpcoming by BatterySaver.preloadUpcoming.collectAsStateWithLifecycle()
+    val efficientPodcasts by BatterySaver.efficientPodcastPlayback.collectAsStateWithLifecycle()
+    val refreshHours by BatterySaver.podcastRefreshHours.collectAsStateWithLifecycle()
+    val refreshWifiOnly by BatterySaver.podcastRefreshWifiOnly.collectAsStateWithLifecycle()
+    val refreshWhileCharging by BatterySaver.podcastRefreshWhileCharging.collectAsStateWithLifecycle()
+    // Marks the options battery saver is overriding right now.
+    val saverBadge = if (saverActive) stringResource(R.string.pax_saver_badge) else null
     val performanceRefreshRate by AppSettings.performanceRefreshRate.collectAsStateWithLifecycle()
     val currentDisplay = LocalView.current.display
     val supportedRefreshRates = remember(currentDisplay) {
@@ -725,11 +746,26 @@ fun SettingsScreen(
                     modifier = Modifier.padding(start = ROW_INSET, end = ROW_INSET, bottom = 14.dp),
                 )
             }
+            val tabletLayoutTitle = stringResource(R.string.pax_tablet_layout)
+            row(tabletLayoutTitle, "tablet", "phone", "layout", "foldable", "sidebar") {
+                SettingsRow(
+                    icon = Icons.Rounded.TabletAndroid,
+                    title = tabletLayoutTitle,
+                    subtitle = stringResource(R.string.pax_tablet_layout_subtitle),
+                )
+                SegmentedControl(
+                    options = TabletLayout.entries.map { it.localizedLabel() },
+                    selectedIndex = TabletLayout.entries.indexOf(tabletLayout),
+                    onSelect = { AppSettings.setTabletLayout(TabletLayout.entries[it]) },
+                    modifier = Modifier.padding(start = ROW_INSET, end = ROW_INSET, bottom = 14.dp),
+                )
+            }
             val reduceAnimationTitle = stringResource(R.string.reduce_animation)
             row(reduceAnimationTitle, "motion") {
                 SettingsRow(
                     icon = Icons.Rounded.MotionPhotosOff,
                     title = reduceAnimationTitle,
+                    badge = saverBadge,
                     subtitle = stringResource(R.string.reduce_animation_subtitle),
                     trailing = {
                         Switch(
@@ -749,6 +785,7 @@ fun SettingsScreen(
                 SettingsRow(
                     icon = Icons.Rounded.BlurOff,
                     title = reduceDynamicBlurTitle,
+                    badge = saverBadge,
                     subtitle = stringResource(R.string.reduce_dynamic_blur_subtitle),
                     trailing = {
                         Switch(
@@ -768,6 +805,7 @@ fun SettingsScreen(
                 SettingsRow(
                     icon = Icons.Rounded.AutoAwesome,
                     title = liquidGlassTitle,
+                    badge = saverBadge,
                     subtitle = stringResource(
                         if (liquidGlassSupported) {
                             R.string.liquid_glass_subtitle
@@ -842,6 +880,7 @@ fun SettingsScreen(
                 SettingsRow(
                     icon = Icons.Rounded.Animation,
                     title = animatedCoverArtTitle,
+                    badge = saverBadge,
                     subtitle = stringResource(R.string.animated_cover_art_subtitle),
                     trailing = {
                         Switch(
@@ -921,6 +960,7 @@ fun SettingsScreen(
                     SettingsRow(
                         icon = Icons.Rounded.BlurOn,
                         title = lyricsBlurTitle,
+                    badge = saverBadge,
                         subtitle = stringResource(R.string.blur_unfocused_lyrics_subtitle),
                         trailing = {
                             Switch(
@@ -968,12 +1008,153 @@ fun SettingsScreen(
             }
         }
 
+        SearchableSettingsGroup(
+            search,
+            header = stringResource(R.string.pax_battery),
+            footer = stringResource(R.string.pax_battery_footer),
+        ) {
+            val saverTitle = stringResource(R.string.pax_battery_saver)
+            row(saverTitle, "battery", "power", "energy", "akku", "saver") {
+                SettingsRow(
+                    icon = Icons.Rounded.BatterySaver,
+                    title = saverTitle,
+                    subtitle = stringResource(
+                        when {
+                            saverManual -> R.string.pax_battery_saver_on
+                            saverActive && systemPowerSave -> R.string.pax_battery_saver_on_system
+                            else -> R.string.pax_battery_saver_subtitle
+                        },
+                    ),
+                    trailing = {
+                        Switch(
+                            checked = saverActive,
+                            onCheckedChange = { on -> setSaver(on, systemPowerSave, saverFollowSystem) },
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                checkedBorderColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        )
+                    },
+                    onClick = { setSaver(!saverActive, systemPowerSave, saverFollowSystem) },
+                )
+            }
+            row(stringResource(R.string.pax_battery_follow_system), "battery", "system", divided = false) {
+                SettingsSubRow(
+                    title = stringResource(R.string.pax_battery_follow_system),
+                    checked = saverFollowSystem,
+                    onCheckedChange = { BatterySaver.setFollowSystem(it) },
+                )
+            }
+            val analysisTitle = stringResource(R.string.pax_analysis_charging)
+            row(analysisTitle, "automix", "analysis", "charging", "battery") {
+                SettingsRow(
+                    icon = Icons.Rounded.BatteryChargingFull,
+                    title = analysisTitle,
+                    subtitle = stringResource(R.string.pax_analysis_charging_subtitle),
+                    trailing = {
+                        Switch(
+                            checked = analysisOnlyCharging,
+                            onCheckedChange = { BatterySaver.setAnalysisOnlyWhileCharging(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                checkedBorderColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        )
+                    },
+                    onClick = { BatterySaver.setAnalysisOnlyWhileCharging(!analysisOnlyCharging) },
+                )
+            }
+            val efficientTitle = stringResource(R.string.pax_efficient_podcasts)
+            row(efficientTitle, "offload", "podcast", "radio", "screen off", "battery") {
+                SettingsRow(
+                    icon = Icons.Rounded.Podcasts,
+                    title = efficientTitle,
+                    subtitle = stringResource(R.string.pax_efficient_podcasts_subtitle),
+                    trailing = {
+                        Switch(
+                            checked = efficientPodcasts,
+                            onCheckedChange = { BatterySaver.setEfficientPodcastPlayback(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                checkedBorderColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        )
+                    },
+                    onClick = { BatterySaver.setEfficientPodcastPlayback(!efficientPodcasts) },
+                )
+            }
+            val preloadTitle = stringResource(R.string.pax_preload)
+            row(preloadTitle, "preload", "cache", "data", "battery", "gapless") {
+                SettingsRow(
+                    icon = Icons.Rounded.Downloading,
+                    title = preloadTitle,
+                    subtitle = stringResource(R.string.pax_preload_subtitle),
+                    trailing = {
+                        Switch(
+                            checked = preloadUpcoming,
+                            onCheckedChange = { BatterySaver.setPreloadUpcoming(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                checkedBorderColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        )
+                    },
+                    onClick = { BatterySaver.setPreloadUpcoming(!preloadUpcoming) },
+                )
+            }
+            val refreshTitle = stringResource(R.string.pax_podcast_refresh)
+            row(refreshTitle, "podcast", "refresh", "background", "episodes", "battery") {
+                val refreshContext = LocalContext.current
+                SettingsRow(
+                    icon = Icons.Rounded.Podcasts,
+                    title = refreshTitle,
+                    subtitle = stringResource(R.string.pax_podcast_refresh_subtitle),
+                )
+                SegmentedControl(
+                    options = BatterySaver.REFRESH_CHOICES.map { hours ->
+                        if (hours == 0) stringResource(R.string.pax_refresh_off) else stringResource(R.string.pax_refresh_hours, hours)
+                    },
+                    selectedIndex = BatterySaver.REFRESH_CHOICES.indexOf(refreshHours).coerceAtLeast(0),
+                    onSelect = { index ->
+                        BatterySaver.setPodcastRefreshHours(BatterySaver.REFRESH_CHOICES[index])
+                        com.music.bitchord.data.pax.PodcastRefreshWorker.schedule(refreshContext)
+                    },
+                    modifier = Modifier.padding(start = TEXT_INSET, end = ROW_INSET, bottom = 14.dp),
+                )
+            }
+            if (refreshHours > 0) {
+                row(stringResource(R.string.pax_refresh_wifi), "wifi", "podcast", divided = false) {
+                    val refreshContext = LocalContext.current
+                    SettingsSubRow(
+                        title = stringResource(R.string.pax_refresh_wifi),
+                        checked = refreshWifiOnly,
+                        onCheckedChange = {
+                            BatterySaver.setPodcastRefreshWifiOnly(it)
+                            com.music.bitchord.data.pax.PodcastRefreshWorker.schedule(refreshContext)
+                        },
+                    )
+                }
+                row(stringResource(R.string.pax_refresh_charging), "charging", "podcast", divided = false) {
+                    val refreshContext = LocalContext.current
+                    SettingsSubRow(
+                        title = stringResource(R.string.pax_refresh_charging),
+                        checked = refreshWhileCharging,
+                        onCheckedChange = {
+                            BatterySaver.setPodcastRefreshWhileCharging(it)
+                            com.music.bitchord.data.pax.PodcastRefreshWorker.schedule(refreshContext)
+                        },
+                    )
+                }
+            }
+        }
+
         SearchableSettingsGroup(search, header = stringResource(R.string.performance)) {
             val highPerformanceModeTitle = stringResource(R.string.high_performance_mode)
             row(highPerformanceModeTitle, "frame rate", "refresh rate", "hz", "battery", "smooth") {
                 SettingsRow(
                     icon = BitChordIcons.Performance,
                     title = highPerformanceModeTitle,
+                    badge = saverBadge,
                     subtitle = if (highPerformanceMode) {
                         stringResource(R.string.high_performance_active, selectedPerformanceRefreshRate)
                     } else {
@@ -1627,6 +1808,15 @@ private fun DownloadQuality.localizedLabel(): String = stringResource(
         DownloadQuality.STANDARD -> R.string.standard
         DownloadQuality.HIGH -> R.string.high
         DownloadQuality.LOSSLESS -> R.string.lossless
+    },
+)
+
+@Composable
+private fun TabletLayout.localizedLabel(): String = stringResource(
+    when (this) {
+        TabletLayout.AUTO -> R.string.pax_layout_auto
+        TabletLayout.TABLET -> R.string.pax_layout_tablet
+        TabletLayout.PHONE -> R.string.pax_layout_phone
     },
 )
 
@@ -2468,4 +2658,14 @@ internal fun SegmentedControl(
             }
         }
     }
+}
+
+/**
+ * The battery saver switch shows whether saver is in force, whichever way it
+ * got there. Switching it off while Android's Battery Saver holds it on also
+ * stops following the system — otherwise the switch would simply refuse.
+ */
+private fun setSaver(on: Boolean, systemPowerSave: Boolean, followSystem: Boolean) {
+    BatterySaver.setManual(on)
+    if (!on && systemPowerSave && followSystem) BatterySaver.setFollowSystem(false)
 }

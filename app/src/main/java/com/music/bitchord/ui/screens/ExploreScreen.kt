@@ -2,6 +2,19 @@ package com.music.bitchord.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.ContentScale
+import com.music.bitchord.ui.pax.PaxChips
+import com.music.bitchord.ui.pax.PaxSectionHeader
+import com.music.bitchord.ui.pax.paxGridColumns
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -67,18 +80,48 @@ fun ExploreScreen(
         state = pullState,
         modifier = modifier,
     ) {
+        val scope = rememberCoroutineScope()
+        val sections = (state as? UiState.Success)?.data.orEmpty()
+        // The chip for whichever section is at the top of the page.
+        val currentSection by remember(sections) {
+            derivedStateOf {
+                val index = listState.firstVisibleItemIndex - EXPLORE_HEADER_ITEMS
+                sections.getOrNull(index.coerceIn(0, (sections.size - 1).coerceAtLeast(0)))?.title
+            }
+        }
         LazyColumn(
             state = listState,
             contentPadding = contentPadding,
             modifier = Modifier.fillMaxSize(),
         ) {
-            item {
-                Text(
-                    text = stringResource(R.string.explore),
-                    style = MaterialTheme.typography.displayLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(horizontal = PAGE_GUTTER, vertical = 8.dp),
-                )
+            item(key = "explore-title") {
+                Column(Modifier.padding(horizontal = PAGE_GUTTER, vertical = 8.dp)) {
+                    Text(
+                        text = stringResource(R.string.explore),
+                        style = MaterialTheme.typography.displayLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Text(
+                        text = stringResource(R.string.pax_explore_subtitle),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            // PAXwave: jump straight to a section instead of scrolling for it.
+            item(key = "explore-chips") {
+                if (sections.size > 1) {
+                    PaxChips(
+                        options = sections.map { it.title },
+                        selected = currentSection ?: sections.first().title,
+                        label = { it },
+                        onSelect = { title ->
+                            val index = sections.indexOfFirst { it.title == title }
+                            if (index >= 0) scope.launch { listState.animateScrollToItem(index + EXPLORE_HEADER_ITEMS) }
+                        },
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+                }
             }
             when (state) {
                 UiState.Loading -> item { ExploreSkeleton() }
@@ -95,20 +138,26 @@ fun ExploreScreen(
     }
 }
 
+/** The title and the chip row, which sit above the first section. */
+private const val EXPLORE_HEADER_ITEMS = 2
+
+private val CardShape = RoundedCornerShape(18.dp)
+
 @Composable
 private fun MoodGenreGrid(
     section: MoodGenreSection,
     onCategoryClick: (MoodGenre) -> Unit,
 ) {
-    Column(Modifier.padding(bottom = 22.dp)) {
-        SectionHeader(section.title)
+    val columns = paxGridColumns(phone = 2, minTileWidth = 230.dp, maxColumns = 5)
+    Column(Modifier.padding(bottom = 18.dp)) {
+        PaxSectionHeader(section.title)
         BoxWithConstraints(Modifier.fillMaxWidth()) {
-            val cardWidth = (maxWidth - PAGE_GUTTER * 2 - 12.dp) / 2
+            val cardWidth = (maxWidth - PAGE_GUTTER * 2 - 12.dp * (columns - 1)) / columns
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.padding(horizontal = PAGE_GUTTER),
             ) {
-                section.items.chunked(2).forEach { row ->
+                section.items.chunked(columns).forEach { row ->
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         row.forEach { item ->
                             MoodGenreCard(
@@ -117,7 +166,7 @@ private fun MoodGenreGrid(
                                 modifier = Modifier.width(cardWidth),
                             )
                         }
-                        if (row.size == 1) Spacer(Modifier.width(cardWidth))
+                        repeat(columns - row.size) { Spacer(Modifier.width(cardWidth)) }
                     }
                 }
             }
@@ -131,82 +180,101 @@ private fun MoodGenreCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val color = moodColor(item.title)
+    val accent = moodColor(item.title)
+    val surface = MaterialTheme.colorScheme.surfaceVariant
     Box(
         modifier = modifier
-            .height(100.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(
-                Brush.linearGradient(
-                    listOf(color, color.copy(red = color.red * .68f, green = color.green * .68f, blue = color.blue * .68f)),
-                ),
-            )
-            .clickable(onClick = onClick)
-            .padding(12.dp),
+            .height(108.dp)
+            .clip(CardShape)
+            .background(surface)
+            .clickable(onClick = onClick),
     ) {
+        // The playlist's own artwork fills the right side and dissolves into
+        // the card, rather than sitting on it as a tilted sleeve.
+        item.thumbnailUrl?.let { artwork ->
+            AsyncImage(
+                model = artwork,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .fillMaxHeight()
+                    .fillMaxWidth(0.62f),
+            )
+        }
         Box(
             Modifier
-                .align(Alignment.BottomEnd)
-                // Push a rotated square beyond the corner, exactly like a
-                // cropped album sleeve rather than a floating rectangle.
-                .offset(x = 10.dp, y = 12.dp)
-                .size(82.dp)
-                .graphicsLayer { rotationZ = 16f }
-                .clip(RoundedCornerShape(7.dp))
-                .background(Color.White.copy(alpha = .22f)),
-        ) {
-            item.thumbnailUrl?.let { artwork ->
-                AsyncImage(
-                    model = artwork,
-                    contentDescription = null,
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
+                .fillMaxSize()
+                .drawBehind {
+                    drawRect(
+                        Brush.horizontalGradient(
+                            0f to surface,
+                            0.38f to surface,
+                            0.72f to surface.copy(alpha = 0.55f),
+                            1f to surface.copy(alpha = 0.05f),
+                        ),
+                    )
+                    // A soft glow of the category's colour from the top-left
+                    // corner: colour as a hint, not a flood.
+                    drawRect(
+                        Brush.radialGradient(
+                            listOf(accent.copy(alpha = 0.42f), Color.Transparent),
+                            center = Offset(0f, 0f),
+                            radius = size.width * 0.75f,
+                        ),
+                    )
+                },
+        )
+        Box(
+            Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 14.dp, top = 14.dp)
+                .size(width = 20.dp, height = 4.dp)
+                .clip(RoundedCornerShape(50))
+                .background(accent),
+        )
         Text(
             text = item.title,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             color = Color.White,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.align(Alignment.TopStart).padding(end = 48.dp),
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .fillMaxWidth(0.66f)
+                .padding(start = 14.dp, bottom = 12.dp),
+        )
+        Box(
+            Modifier
+                .matchParentSize()
+                .border(0.5.dp, Color.White.copy(alpha = 0.07f), CardShape),
         )
     }
 }
 
 private fun moodColor(title: String): Color = when ((title.hashCode() and Int.MAX_VALUE) % 8) {
-    0 -> Color(0xFFE64A19)
-    1 -> Color(0xFFEC0B65)
-    2 -> Color(0xFF8664AC)
-    3 -> Color(0xFF6B4EFF)
-    4 -> Color(0xFFBE6100)
-    5 -> Color(0xFF233C78)
-    6 -> Color(0xFF4D97E5)
-    else -> Color(0xFFAA267E)
+    0 -> Color(0xFFFF7A45)
+    1 -> Color(0xFFFF4F8B)
+    2 -> Color(0xFFB08CFF)
+    3 -> Color(0xFF7C6CFF)
+    4 -> Color(0xFFFFB347)
+    5 -> Color(0xFF4F8DFF)
+    6 -> Color(0xFF4FD8EB)
+    else -> Color(0xFFE05BC6)
 }
 
 @Composable
 private fun ExploreSkeleton() {
+    val columns = paxGridColumns(phone = 2, minTileWidth = 230.dp, maxColumns = 5)
     Column(Modifier.padding(horizontal = PAGE_GUTTER)) {
         repeat(5) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.padding(bottom = 12.dp),
             ) {
-                repeat(2) {
-                    Box(Modifier.weight(1f).height(100.dp).clip(RoundedCornerShape(8.dp))) {
-                        ShimmerBox(Modifier.fillMaxSize(), RoundedCornerShape(8.dp))
-                        ShimmerBox(
-                            Modifier
-                                .align(Alignment.BottomEnd)
-                                .offset(x = 10.dp, y = 12.dp)
-                                .size(82.dp)
-                                .graphicsLayer { rotationZ = 16f },
-                            RoundedCornerShape(7.dp),
-                        )
-                    }
+                repeat(columns) {
+                    ShimmerBox(Modifier.weight(1f).height(108.dp), CardShape)
                 }
             }
         }

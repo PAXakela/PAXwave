@@ -95,7 +95,7 @@ fun AboutPaxwaveCard(version: String) {
             Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(Color.Black),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(painterResource(R.drawable.ic_logo), contentDescription = null, tint = Color.White, modifier = Modifier.size(width = 26.dp, height = 30.dp))
+            PaxLogo(height = 29.dp, onDark = true)
         }
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
@@ -167,6 +167,7 @@ private val SERVICES = listOf(
 fun AboutPaxwaveScreen(version: String, onClose: () -> Unit) {
     val uri = LocalUriHandler.current
     var showLicense by remember { mutableStateOf(false) }
+    var showThirdParty by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             LazyColumn(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
@@ -190,7 +191,7 @@ fun AboutPaxwaveScreen(version: String, onClose: () -> Unit) {
                                 .background(Brush.linearGradient(listOf(Color(0xFF111111), Color.Black))),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Icon(painterResource(R.drawable.ic_logo), contentDescription = null, tint = Color.White, modifier = Modifier.size(width = 60.dp, height = 69.dp))
+                            PaxLogo(height = 68.dp, onDark = true)
                         }
                         Spacer(Modifier.height(14.dp))
                         PaxwaveWordmark()
@@ -216,6 +217,7 @@ fun AboutPaxwaveScreen(version: String, onClose: () -> Unit) {
                         Text(stringResource(R.string.pax_gpl_notice), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(12.dp))
                         AboutLink(Icons.Rounded.Description, stringResource(R.string.pax_read_license)) { showLicense = true }
+                        AboutLink(Icons.Rounded.Description, stringResource(R.string.pax_third_party_licenses)) { showThirdParty = true }
                         AboutLink(Icons.Rounded.Code, stringResource(R.string.pax_source_code)) { uri.openUri(PAXWAVE_SOURCE_URL) }
                         AboutLink(Icons.Rounded.Description, "gnu.org/licenses/gpl-3.0") { uri.openUri(GPL_URL) }
                     }
@@ -261,6 +263,13 @@ fun AboutPaxwaveScreen(version: String, onClose: () -> Unit) {
         }
     }
     if (showLicense) LicenseDialog(onClose = { showLicense = false })
+    if (showThirdParty) {
+        LicenseDialog(
+            asset = "licenses/THIRD_PARTY_LICENSES.txt",
+            title = stringResource(R.string.pax_third_party_licenses),
+            onClose = { showThirdParty = false },
+        )
+    }
 }
 
 @Composable
@@ -326,12 +335,20 @@ private fun CreditRow(credit: Credit, onOpen: (String) -> Unit) {
     }
 }
 
-/** The full GNU GPL v3, as shipped inside the app. */
+/**
+ * A licence text shipped inside the app: the GNU GPL v3 by default, or
+ * [asset] — the third-party licences every bundled component asks to travel
+ * with it.
+ */
 @Composable
-private fun LicenseDialog(onClose: () -> Unit) {
+private fun LicenseDialog(
+    onClose: () -> Unit,
+    asset: String = "LICENSE.txt",
+    title: String = "GPL-3.0",
+) {
     val context = LocalContext.current
-    val text = remember {
-        runCatching { context.assets.open("LICENSE.txt").bufferedReader().use { it.readText() } }
+    val text = remember(asset) {
+        runCatching { context.assets.open(asset).bufferedReader().use { it.readText() } }
             .getOrDefault("GNU General Public License v3.0 — https://www.gnu.org/licenses/gpl-3.0.html")
     }
     val paragraphs = remember(text) { text.split(Regex("\n\\s*\n")) }
@@ -343,7 +360,7 @@ private fun LicenseDialog(onClose: () -> Unit) {
                         IconButton(onClick = onClose) {
                             Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null, tint = MaterialTheme.colorScheme.onBackground)
                         }
-                        Text("GPL-3.0", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground)
+                        Text(title, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground)
                     }
                 }
                 items(paragraphs) { para ->

@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -218,17 +219,25 @@ class PartySync(
                     reconcile()
                 }
         }
+        // PAXwave: only ticks while in a party. Outside one, reconcile() just
+        // resets a few fields — once is enough — and the 700 ms timer kept
+        // waking the CPU for as long as the playback service lived, paused or
+        // not.
         jobs += scope.launch {
-            while (true) {
-                delay(TICK_MS)
-                // The screen is the only thing that opens this socket otherwise,
-                // and a party outlives the screen. A process restarted by the
-                // system into a party it is still a member of has the membership
-                // but no connection, and would sit silently out of step; this is
-                // what puts it back. Idempotent — it returns immediately when a
-                // socket is already up, or when there is no party.
-                if (ListenTogether.state.value.inParty) ListenTogether.ensureConnected()
+            ListenTogether.state.map { it.inParty }.distinctUntilChanged().collectLatest { inParty ->
                 reconcile()
+                if (!inParty) return@collectLatest
+                while (true) {
+                    delay(TICK_MS)
+                    // The screen is the only thing that opens this socket otherwise,
+                    // and a party outlives the screen. A process restarted by the
+                    // system into a party it is still a member of has the membership
+                    // but no connection, and would sit silently out of step; this is
+                    // what puts it back. Idempotent — it returns immediately when a
+                    // socket is already up.
+                    ListenTogether.ensureConnected()
+                    reconcile()
+                }
             }
         }
     }

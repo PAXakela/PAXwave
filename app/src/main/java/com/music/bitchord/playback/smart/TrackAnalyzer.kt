@@ -242,10 +242,16 @@ class TrackAnalyzer(private val context: Context, private val cache: AudioCache)
      */
     fun request(trackId: String, uri: Uri, durationSeconds: Double) {
         if (trackId.isBlank()) return
+        // PAXwave: podcast episodes and radio are never analysed. See
+        // CrossfadeController.considerAutoTransition.
+        if (com.music.bitchord.data.pax.PaxMedia.isPaxId(trackId)) return
         // Before anything else this would spend: [analysisUriFor] alone can put
         // a catalogue match on the network for a track the party will never
         // mix. See [stopped].
         if (stopped) return
+        // PAXwave: battery saver, or "only while charging" with no charger in.
+        // Automix falls back to a plain crossfade for a track it hasn't read.
+        if (!com.music.bitchord.data.settings.BatterySaver.analysisAllowed()) return
         if (trackId in running) return
         val analysisUri = analysisUriFor(trackId, uri) ?: return
 

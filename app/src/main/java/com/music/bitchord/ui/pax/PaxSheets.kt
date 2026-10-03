@@ -259,8 +259,9 @@ fun SleepTimerSheet(onDismiss: () -> Unit) {
     val fade by SleepTimer.fadeOut.collectAsStateWithLifecycle()
     var minutes by remember { mutableIntStateOf(SleepTimer.minutes.value ?: 30) }
     var remaining by remember { mutableLongStateOf(SleepTimer.remainingMs() ?: 0L) }
-    LaunchedEffect(deadline) {
-        while (deadline != null) {
+    val foreground = com.music.bitchord.ui.rememberIsForeground()
+    LaunchedEffect(deadline, foreground) {
+        while (deadline != null && foreground) {
             remaining = SleepTimer.remainingMs() ?: 0L
             delay(1000)
         }

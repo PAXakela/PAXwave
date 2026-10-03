@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- PAXwave mark, one colour, tinted at the call site. -->
+<!-- PAXwave themed-icon layer: the same mark as one colour, for Android 13+ themed icons. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="24dp"
-    android:height="24.91dp"
-    android:viewportWidth="553"
-    android:viewportHeight="574">
-    <group android:scaleX="1.000000" android:scaleY="1.000000" android:translateX="-103.0000" android:translateY="-68.0000">
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:scaleX="0.080139" android:scaleY="0.080139" android:translateX="23.5871" android:translateY="25.5505">
         <path android:fillColor="#FFFFFFFF" android:pathData="M122,68 L546,68 A110,110 0 0 1 656,178 L656,532 A110,110 0 0 1 546,642 L124,642 L202,564 L526,564 A52,52 0 0 0 578,512 L578,198 A52,52 0 0 0 526,146 L200,146 Z" />
         <path android:fillColor="#FFFFFFFF" android:pathData="M103,98 L181,176 L181,300 L103,378 Z" />
         <path android:fillColor="#FFFFFFFF" android:pathData="M202.50,347.50 A15.50,15.50 0 0 1 233.50,347.50 L233.50,378.50 A15.50,15.50 0 0 1 202.50,378.50 Z" />

@@ -326,7 +326,8 @@ object PodcastStore {
         if (finished && isQueued(mediaId)) dequeue(mediaId)
 
         val now = System.currentTimeMillis()
-        if (finished || now - lastProgressWrite > 10_000L) {
+        // Every 30 s while playing; a pause flushes, see [flush].
+        if (finished || now - lastProgressWrite > 30_000L) {
             lastProgressWrite = now
             saveProgress()
         }

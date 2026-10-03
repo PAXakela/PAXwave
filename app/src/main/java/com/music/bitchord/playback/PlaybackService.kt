@@ -22,6 +22,7 @@ import androidx.media3.common.C
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
+import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -835,6 +836,8 @@ class PlaybackService : MediaLibraryService() {
             if (isPlaying) {
                 pushDiscordPresence(exoPlayer)
                 startLyricsTicker()
+                // The crossfade ticker sleeps long while paused; wake it now.
+                crossfade?.start()
             } else {
                 clearDiscordPresence()
                 stopLyricsTicker()
@@ -2569,6 +2572,11 @@ class PlaybackService : MediaLibraryService() {
         // Back restarts the track once you're this far into it; only a
         // press before that steps to the previous one.
         .setMaxSeekToPreviousPositionMs(BACK_RESTARTS_AFTER_MS)
+        // PAXwave: let the playback thread sleep until the audio buffer needs
+        // feeding again, instead of waking every 10 ms. For audio-only
+        // playback this is most of the CPU wake-ups a player makes with the
+        // screen off.
+        .experimentalSetDynamicSchedulingEnabled(true)
         .build()
 
     /**
@@ -2740,6 +2748,7 @@ class PlaybackService : MediaLibraryService() {
     ) {
         val exoPlayer = player ?: return
         currentAudioInputFormat = null
+        applyOffloadPolicy()
 
         // A crossfade handoff never fires [formatListener] for the entering
         // track — [CrossfadeController] starts its decoder during ARMING,
@@ -5069,9 +5078,15 @@ class PlaybackService : MediaLibraryService() {
      * tracks is more than it does anything with, but it decides that, not this.
      */
     private fun prefetchAround(player: ExoPlayer) {
+        // PAXwave: none with preloading off, just the next song in battery saver.
+        val depth = com.music.bitchord.data.settings.BatterySaver.preloadDepth(AudioCache.QUEUE_DEPTH)
+        if (depth == 0) {
+            cancelPrefetch()
+            return
+        }
         val nextIndex = player.nextMediaItemIndex
         val upcomingSongs = if (nextIndex != C.INDEX_UNSET) {
-            val end = (nextIndex + AudioCache.QUEUE_DEPTH - 1).coerceAtMost(player.mediaItemCount - 1)
+            val end = (nextIndex + depth - 1).coerceAtMost(player.mediaItemCount - 1)
             (nextIndex..end).map { index -> player.getMediaItemAt(index).toSong() }
                 .filterNot { PaxMedia.isPaxId(it.videoId) }
         } else {
@@ -5138,6 +5153,9 @@ class PlaybackService : MediaLibraryService() {
      * entry with no watchtime behind it barely registers as a listen, so the
      * sampling has to come from here.
      */
+    /** When [reportProgress] last wrote the resume position. */
+    private var lastStateSaveAt = 0L
+
     private fun reportProgress() {
         scope.launch {
             while (isActive) {
@@ -5162,9 +5180,16 @@ class PlaybackService : MediaLibraryService() {
                     player.currentMediaItem?.toSong()?.takeUnless { PaxMedia.isPaxId(it.videoId) }?.let {
                         ListeningRecorder.onSample(it, player.duration)
                     }
-                    // Only two primitive preference values. Queue JSON is
-                    // written from onTimelineChanged, never from this loop.
-                    savePlaybackState(player)
+                    // Only two primitive preference values — but they share a
+                    // preferences file with the saved queue, and every apply()
+                    // rewrites that whole file. PAXwave: every 30 seconds rather
+                    // than every 5; a pause, a track change and teardown still
+                    // write straight away.
+                    val now = SystemClock.elapsedRealtime()
+                    if (now - lastStateSaveAt >= STATE_SAVE_INTERVAL_MS) {
+                        lastStateSaveAt = now
+                        savePlaybackState(player)
+                    }
                     // The renderer can settle on its format a moment after the
                     // track change, which no callback of ours follows up on.
                     publishNerdStats()
@@ -5177,7 +5202,11 @@ class PlaybackService : MediaLibraryService() {
                     // pending and nothing is already looking.
                     lookForBetterCopy(player)
                 }
-                delay(PROGRESS_SAMPLE_MS)
+                // PAXwave: episodes and stations only need their resume point
+                // kept, and pauses write it immediately — no YouTube watch time,
+                // no listening stats — so they sample a third as often.
+                val onPax = this@PlaybackService.player?.currentMediaItem?.mediaId?.let(PaxMedia::isPaxId) == true
+                delay(if (onPax) PAX_PROGRESS_SAMPLE_MS else PROGRESS_SAMPLE_MS)
             }
         }
     }
@@ -5713,6 +5742,44 @@ class PlaybackService : MediaLibraryService() {
     }
 
     /** Runs [body] against both players, in whichever roles they currently hold. */
+    /**
+     * PAXwave: hands podcast episodes and radio to the phone's audio DSP
+     * ("offload") when nothing needs the decoded audio on the main CPU — no
+     * equaliser, spatial audio or silence skipping. The DSP then decodes and
+     * plays minutes of audio on its own while the CPU sleeps, which is where
+     * apps like YouTube Music get their low screen-off drain. Music stays on
+     * the normal path: Automix, crossfades and the audio effects all need it.
+     *
+     * Speed changes are required of the offloaded route, so a 1.5x episode is
+     * only offloaded where the device can speed it up there; anywhere offload
+     * is unavailable, Media3 simply plays it the usual way.
+     */
+    private fun applyOffloadPolicy() {
+        val exoPlayer = player ?: return
+        val mediaId = exoPlayer.currentMediaItem?.mediaId
+        val wanted = mediaId != null && PaxMedia.isPaxId(mediaId) &&
+            com.music.bitchord.data.settings.BatterySaver.efficientPodcastPlayback.value &&
+            !AppSettings.skipSilence.value &&
+            !AppSettings.equalizerEnabled.value &&
+            !AppSettings.spatialAudio.value
+        val mode = if (wanted) {
+            TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED
+        } else {
+            TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_DISABLED
+        }
+        val current = exoPlayer.trackSelectionParameters
+        if (current.audioOffloadPreferences.audioOffloadMode == mode) return
+        exoPlayer.trackSelectionParameters = current.buildUpon()
+            .setAudioOffloadPreferences(
+                TrackSelectionParameters.AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(mode)
+                    .setIsGaplessSupportRequired(false)
+                    .setIsSpeedChangeSupportRequired(true)
+                    .build(),
+            )
+            .build()
+    }
+
     private inline fun eachPlayer(body: (ExoPlayer) -> Unit) {
         player?.let(body)
         spare?.let(body)
@@ -5728,6 +5795,15 @@ class PlaybackService : MediaLibraryService() {
         }
         scope.launch {
             AppSettings.skipSilence.collect { on -> eachPlayer { it.skipSilenceEnabled = on } }
+        }
+        // PAXwave: anything that needs the audio on the main CPU rules offload out.
+        scope.launch {
+            combine(
+                AppSettings.skipSilence,
+                AppSettings.equalizerEnabled,
+                AppSettings.spatialAudio,
+                com.music.bitchord.data.settings.BatterySaver.efficientPodcastPlayback,
+            ) { _, _, _, _ -> }.collect { applyOffloadPolicy() }
         }
         scope.launch {
             // Re-evaluate the already queued next track immediately when this
@@ -6013,7 +6089,9 @@ class PlaybackService : MediaLibraryService() {
             combine(
                 AppSettings.discordToken,
                 AppSettings.discordRpcEnabled,
-            ) { token, enabled -> token.takeIf { enabled && it.isNotBlank() } }
+                // PAXwave: battery saver closes the always-open Discord socket.
+                com.music.bitchord.data.settings.BatterySaver.active,
+            ) { token, enabled, saver -> token.takeIf { enabled && !saver && it.isNotBlank() } }
                 .distinctUntilChanged()
                 .collectLatest { token ->
                     // Torn down before anything is built, so switching accounts
@@ -6338,6 +6416,15 @@ class PlaybackService : MediaLibraryService() {
             return
         }
 
+        // PAXwave: episodes and stations have no lyrics. Searching a dozen
+        // lyric services for every one of them was network work for nothing.
+        if (PaxMedia.isPaxId(currentSong.videoId)) {
+            serviceLyricsJob?.cancel()
+            serviceLyrics = null
+            stopLyricsTicker()
+            return
+        }
+
         if (!AppSettings.syncedLyrics.value) {
             serviceLyrics = null
             stopLyricsTicker()
@@ -6370,6 +6457,7 @@ class PlaybackService : MediaLibraryService() {
                 serviceLyrics = lines
                 if (player?.isPlaying == true) {
                     updateLyricSubtitle()
+                    startLyricsTicker()
                 }
             }
         }
@@ -6377,12 +6465,32 @@ class PlaybackService : MediaLibraryService() {
 
     private fun startLyricsTicker() {
         if (lyricsTickerJob?.isActive == true) return
+        // PAXwave: only with synced lines to show. Without any, the subtitle is
+        // the artist and never changes, so a twice-a-second ticker was pure
+        // wake-ups for every track without lyrics, every podcast and station.
+        if (serviceLyrics.isNullOrEmpty() || !AppSettings.syncedLyrics.value) return
         lyricsTickerJob = scope.launch(Dispatchers.Main) {
-            while (isActive) {
+            // Ends by itself once a track without lyrics takes over.
+            while (isActive && !serviceLyrics.isNullOrEmpty()) {
                 updateLyricSubtitle()
-                delay(500L)
+                delay(msUntilNextLyricLine())
             }
+            updateLyricSubtitle()
         }
+    }
+
+    /**
+     * Sleeps until the next line is due instead of polling every half second:
+     * a line usually lasts several seconds, so this wakes a few times a minute
+     * rather than a hundred and twenty. Capped so a seek is caught up quickly.
+     */
+    private fun msUntilNextLyricLine(): Long {
+        val exoPlayer = player ?: return LYRIC_TICK_MAX_MS
+        val lines = serviceLyrics ?: return LYRIC_TICK_MAX_MS
+        val pos = exoPlayer.currentPosition
+        val next = lines.firstOrNull { it.timeMs > pos }?.timeMs ?: return LYRIC_TICK_MAX_MS
+        val speed = exoPlayer.playbackParameters.speed.takeIf { it > 0f } ?: 1f
+        return ((next - pos) / speed).toLong().coerceIn(LYRIC_TICK_MIN_MS, LYRIC_TICK_MAX_MS)
     }
 
     private fun stopLyricsTicker() {
@@ -7598,6 +7706,16 @@ class PlaybackService : MediaLibraryService() {
 
         /** How often played-seconds are sampled off the player. */
         const val PROGRESS_SAMPLE_MS = 5_000L
+
+        /** [PROGRESS_SAMPLE_MS] while a podcast episode or station plays. */
+        const val PAX_PROGRESS_SAMPLE_MS = 15_000L
+
+        /** Bounds for the lyric-subtitle ticker; see [msUntilNextLyricLine]. */
+        const val LYRIC_TICK_MIN_MS = 80L
+        const val LYRIC_TICK_MAX_MS = 2_000L
+
+        /** How often the resume position is written while playing; pauses always write. */
+        const val STATE_SAVE_INTERVAL_MS = 30_000L
 
         /** Bounds on [LoudnessEnhancer.setTargetGain], in millibels. */
         const val MIN_LOUDNESS_GAIN_MB = -1500

@@ -3,6 +3,7 @@ package com.music.bitchord.playback
 import android.os.SystemClock
 import android.util.Log
 import androidx.media3.common.C
+import com.music.bitchord.data.pax.PaxMedia
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -419,7 +420,7 @@ class CrossfadeController(
                 tick()
                 delay(
                     when (phase) {
-                        Phase.IDLE -> IDLE_STEP_MS
+                        Phase.IDLE -> idleStepMs()
                         Phase.ARMING -> ARM_STEP_MS
                         Phase.FADING -> FADE_STEP_MS
                         Phase.SLEEP_FADE -> FADE_STEP_MS
@@ -491,10 +492,40 @@ class CrossfadeController(
         }
     }
 
+    /**
+     * How long the idle ticker may sleep. PAXwave: the stock 250 ms is only
+     * needed close to a transition; ticking that fast for a whole hour-long
+     * podcast, or while paused, kept waking the CPU four times a second for
+     * nothing. Far from the end it checks once a second, with nothing to blend
+     * every two, and while paused every ten — [start] is called again on play,
+     * so a resume never waits for that.
+     */
+    private fun idleStepMs(): Long {
+        val player = active()
+        if (!player.isPlaying) return IDLE_PAUSED_STEP_MS
+        val mediaId = player.currentMediaItem?.mediaId
+        if (mediaId != null && PaxMedia.isPaxId(mediaId)) return IDLE_PAX_STEP_MS
+        val smart = AppSettings.smartFadeEnabled.value
+        if (!smart && configuredFadeMs() <= 0L && !SleepTimer.afterTrack.value) return IDLE_SLOW_STEP_MS
+        val duration = player.duration
+        if (duration == C.TIME_UNSET || duration <= 0L) return IDLE_STEP_MS
+        val remaining = duration - player.currentPosition
+        val horizon = (if (smart) SMART_HORIZON_MS else configuredFadeMs()) + ARM_LEAD_MS + FAR_MARGIN_MS
+        return if (remaining > horizon) IDLE_FAR_STEP_MS else IDLE_STEP_MS
+    }
+
     /** Arms a crossfade as the playing track runs out. */
     private fun considerAutoTransition() {
         val player = active()
         if (!player.isPlaying) return
+        // PAXwave: podcast episodes and radio streams are never blended or
+        // analysed — an hour of speech is no material for Automix, and reading
+        // one through the models cost far more battery than the episode itself.
+        val currentId = player.currentMediaItem?.mediaId
+        if (currentId != null && PaxMedia.isPaxId(currentId)) {
+            AppSettings.smartTransitionWindow.value = null
+            return
+        }
         // Not while a version swap owns the standby player — see
         // [versionSwapActive]. Nothing to clean up on the way out unlike the
         // party case below: a version swap is a between-tracks affair on the
@@ -1802,6 +1833,24 @@ class CrossfadeController(
         const val BLEND_EXIT_LOW_PASS_HZ = 2_200.0
 
         const val IDLE_STEP_MS = 250L
+
+        /** Idle tick while far from any transition; see [idleStepMs]. */
+        const val IDLE_FAR_STEP_MS = 1_000L
+
+        /** Idle tick with nothing to blend: crossfade and Automix off, or a podcast/station. */
+        const val IDLE_SLOW_STEP_MS = 2_000L
+
+        /** Idle tick on a podcast episode or station, which are never blended. */
+        const val IDLE_PAX_STEP_MS = 10_000L
+
+        /** Idle tick while paused. */
+        const val IDLE_PAUSED_STEP_MS = 10_000L
+
+        /** How far ahead of the end an Automix plan may want to start arming. */
+        const val SMART_HORIZON_MS = 30_000L
+
+        /** Extra room so the switch to fast ticking is never late. */
+        const val FAR_MARGIN_MS = 5_000L
 
         /**
          * Arming only waits on a buffer now — nothing is being converged — so

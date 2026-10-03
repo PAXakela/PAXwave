@@ -323,11 +323,12 @@ fun LibraryPaxContent(
     val newCount: (com.music.bitchord.data.pax.Podcast) -> Int = { show ->
         show.episodes.take(10).count { progress[it.id] == null }
     }
+    val podcastColumns = paxGridColumns(phone = 3, minTileWidth = 150.dp)
     Column(Modifier.padding(bottom = 12.dp)) {
         when (filter) {
             LibraryFilter.PODCASTS -> {
                 if (podcasts.isEmpty()) PaxEmpty(stringResource(R.string.pax_no_podcasts))
-                podcasts.chunked(3).forEach { row ->
+                podcasts.chunked(podcastColumns).forEach { row ->
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = PAGE_GUTTER, vertical = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -335,7 +336,7 @@ fun LibraryPaxContent(
                         row.forEach { show ->
                             PodcastTile(show, newCount(show), onClick = { onOpenShow(show.key, show.title, show.imageUrl) }, modifier = Modifier.weight(1f))
                         }
-                        repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                        repeat(podcastColumns - row.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
             }

@@ -74,7 +74,11 @@ fun PodcastDownloadsTab(
     var sheet by remember { mutableStateOf<Pair<Podcast, PodcastEpisode>?>(null) }
 
     // DownloadManager reports progress only when asked; ask while this is on screen.
-    LaunchedEffect(Unit) {
+    // On screen means the app in front, too: a composition left open behind a
+    // locked phone kept querying the download database every few seconds.
+    val foreground = com.music.bitchord.ui.rememberIsForeground()
+    LaunchedEffect(foreground) {
+        if (!foreground) return@LaunchedEffect
         while (true) {
             PodcastDownloads.refresh()
             delay(if (records.values.any { it.status != PodcastDownloads.Status.DONE }) 1_500L else 8_000L)
