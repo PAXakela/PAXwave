@@ -14,6 +14,7 @@
 <p>
 <a href="#install"><b>Download</b></a> ·
 <a href="#built-on-bitchord"><b>Built on BitChord</b></a> ·
+<a href="#whats-new"><b>What's new</b></a> ·
 <a href="#features"><b>Features</b></a> ·
 <a href="#screenshots"><b>Screenshots</b></a> ·
 <a href="#privacy"><b>Privacy</b></a> ·
@@ -56,9 +57,14 @@ features, its own look and a few changes of direction.
 - **Internet radio:** the Radio Browser directory, genres, countries, custom stream URLs,
   favourites and live "now playing" titles
 - **One search** across music, podcasts and radio, with category filters
+- **Tablet mode:** a sidebar instead of the bottom bar and wider grids on tablets and unfolded
+  foldables, picked automatically or set by hand
+- **Battery settings:** a battery saver that can follow Android's own, Automix analysis only while
+  charging, optional preloading, and control over when podcasts are checked in the background
 - **A reworked interface:** new Home sections, a Podcasts tab in the navigation, a redesigned
-  header and library with pinned favourites, compact cards and a new start animation
-- **Its own identity:** the PAXwave name, shield logo, aqua accent colour and the Inter typeface
+  header, library with pinned favourites, a new Explore page, compact cards and a calm loading
+  animation
+- **Its own identity:** the PAXwave name and logo, aqua accent colour and the Inter typeface
 - **Public, reproducible releases:** every APK is built by GitHub Actions from the tagged source
 - **Left out on purpose:** Listen Together (no party server) and the in-app update check
 
@@ -84,6 +90,46 @@ design quiet so the music stays in front.
 - **No ads, no trackers, no PAXwave account.** PAXwave has no servers of its own.
 - **Free and open source** under the GPL-3.0. Every line is in this repository.
 - **Every release is built from this source** by GitHub Actions, in public (see [Install](#install)).
+
+---
+
+## What's new
+
+**1.14: Tablet mode**
+
+- On a tablet or an unfolded foldable, PAXwave now uses a **sidebar** down the left edge, with
+  labels beside the icons when the screen is wide enough
+- Grids for podcasts, radio, Explore and the library **grow with the screen** instead of
+  stretching two or three tiles across it, and Settings stays at a readable width
+- Chosen **automatically**, or set it yourself under Settings → Appearance → *Tablet layout*
+
+**1.13: Podcasts and radio on the audio chip**
+
+- Podcast episodes and radio stations now play through the phone's own low-power audio chip
+  where the device supports it, so the processor can sleep while you listen with the screen off
+  (Settings → Battery → *Power-efficient podcasts and radio*)
+- The player's own work during playback now runs only when the audio actually needs feeding
+
+**1.12: Much less battery in the background**
+
+- Playing a podcast, station or song with the screen off now keeps the phone asleep far more:
+  background timers that woke it several times a second are gone or slowed right down, and
+  podcasts and radio skip Automix analysis and lyric look-ups entirely
+
+**1.11: Battery settings**
+
+- New **Battery** section in Settings: a **battery saver** that switches off the heavy extras
+  and can turn on by itself with Android's Battery Saver
+- Automix song analysis **only while charging**, **preloading** on or off, and how often
+  (and on which network and power) **podcasts are checked** in the background
+
+**1.10: New look**
+
+- A **new logo** and app icon
+- A redesigned **Explore** page with mood-coloured cards and section chips
+- The splash screen is gone; Home now shows a **calm loading animation** while it fills in
+
+See every version on the [Releases](https://github.com/PAXakela/PAXwave/releases) page.
 
 ---
 
@@ -118,9 +164,30 @@ design quiet so the music stays in front.
 - Browse by genre and country, or add any stream URL yourself
 - Favourites and a live **"now playing"** title where the station sends one
 
+### 🔋 Battery
+- **Battery saver**, on demand or automatically with Android's Battery Saver. While it is on,
+  PAXwave switches off animations, blur, liquid glass and animated cover art, uses the standard
+  refresh rate, pauses Automix analysis, Discord status and automatic podcast downloads, and
+  preloads only the next song. Your own settings come back the moment it is off.
+- **Analyse songs only while charging:** Automix's on-device beat and vocal analysis waits for
+  a charger and uses a normal crossfade in the meantime
+- **Preload upcoming songs:** instant, gapless playback, or off to save data and battery
+- **Power-efficient podcasts and radio:** episodes and stations play on the phone's low-power
+  audio chip while the processor sleeps (when no equaliser, spatial audio or skip silence is on)
+- **Podcast checks:** every 3, 6, 12 or 24 hours, or never, optionally only on Wi-Fi and only
+  while charging; background checks always pause when the battery is low
+
+### 📱 Tablets and foldables
+- A **sidebar** with Home, Explore, Podcasts, Library, Search and Settings: a compact rail on
+  a portrait tablet, labelled on a wide screen
+- **Wider grids** that fit as many podcasts, stations and Explore cards as the screen holds
+- Settings and other list pages kept to a **readable width** in the middle of the screen
+- **Automatic** detection, or force the tablet or phone layout in Settings → Appearance
+
 ### ✨ Everywhere
 - **One search** across music, podcasts and radio, with category filters
 - **Pinned favourites** in the library: stations, shows, playlists, albums and artists
+- **Explore** moods, genres and charts, with chips to jump straight to a section
 - Liquid-glass navigation, a calm black-and-white design with one aqua accent, and the
   [Inter](https://rsms.me/inter/) typeface
 
@@ -128,27 +195,52 @@ design quiet so the music stays in front.
 
 ## Screenshots
 
+### 📱 Phone
+
 <table align="center">
-  <tr><th colspan="4">🎵 Music</th></tr>
+  <tr><th colspan="4">🏠 Home &amp; 🎵 Player</th></tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/01-home.jpg" width="190" alt="Home" /><br/><sub>Home</sub></td>
-    <td align="center"><img src="docs/screenshots/02-explore.jpg" width="190" alt="Explore" /><br/><sub>Explore</sub></td>
-    <td align="center"><img src="docs/screenshots/03-album.jpg" width="190" alt="Album" /><br/><sub>Album</sub></td>
+    <td align="center"><img src="docs/screenshots/01-home.jpg" width="190" alt="Listen Now" /><br/><sub>Listen Now</sub></td>
+    <td align="center"><img src="docs/screenshots/02-home-podcasts-radio.jpg" width="190" alt="Latest episodes &amp; your stations" /><br/><sub>Latest episodes &amp; your stations</sub></td>
+    <td align="center"><img src="docs/screenshots/03-home-albums.jpg" width="190" alt="Listen again &amp; new releases" /><br/><sub>Listen again &amp; new releases</sub></td>
     <td align="center"><img src="docs/screenshots/04-now-playing.jpg" width="190" alt="Now playing" /><br/><sub>Now playing</sub></td>
   </tr>
-  <tr><th colspan="4">🎙️ Podcasts &amp; 📻 Radio</th></tr>
+  <tr><th colspan="4">🧭 Explore &amp; 🎙️ Podcasts</th></tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/05-podcasts.jpg" width="190" alt="Podcasts" /><br/><sub>Podcasts</sub></td>
-    <td align="center"><img src="docs/screenshots/06-discover.jpg" width="190" alt="Discover" /><br/><sub>Discover</sub></td>
-    <td align="center"><img src="docs/screenshots/07-podcast-show.jpg" width="190" alt="Podcast show" /><br/><sub>Podcast show</sub></td>
-    <td align="center"><img src="docs/screenshots/08-radio.jpg" width="190" alt="Radio" /><br/><sub>Radio</sub></td>
+    <td align="center"><img src="docs/screenshots/05-explore.jpg" width="190" alt="Explore" /><br/><sub>Explore</sub></td>
+    <td align="center"><img src="docs/screenshots/06-moods.jpg" width="190" alt="Moods &amp; moments" /><br/><sub>Moods &amp; moments</sub></td>
+    <td align="center"><img src="docs/screenshots/07-podcasts.jpg" width="190" alt="My podcasts" /><br/><sub>My podcasts</sub></td>
+    <td align="center"><img src="docs/screenshots/08-podcast-show.jpg" width="190" alt="Podcast show" /><br/><sub>Podcast show</sub></td>
   </tr>
-  <tr><th colspan="4">📚 Library</th></tr>
+  <tr><th colspan="4">🎙️ Discover &amp; 📚 Library</th></tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/09-library.jpg" width="190" alt="Library &amp; pins" /><br/><sub>Library &amp; pins</sub></td>
-    <td align="center"><img src="docs/screenshots/10-library-radio.jpg" width="190" alt="Podcasts, radio, on device" /><br/><sub>Podcasts, radio, on device</sub></td>
-    <td align="center"><img src="docs/screenshots/11-artist.jpg" width="190" alt="Artist" /><br/><sub>Artist</sub></td>
-    <td align="center"><img src="docs/screenshots/12-home-stations.jpg" width="190" alt="Your stations on Home" /><br/><sub>Your stations on Home</sub></td>
+    <td align="center"><img src="docs/screenshots/09-discover.jpg" width="190" alt="Discover podcasts" /><br/><sub>Discover podcasts</sub></td>
+    <td align="center"><img src="docs/screenshots/10-library.jpg" width="190" alt="Library &amp; pins" /><br/><sub>Library &amp; pins</sub></td>
+    <td align="center"><img src="docs/screenshots/11-library-radio.jpg" width="190" alt="Radio, on device, playlists" /><br/><sub>Radio, on device, playlists</sub></td>
+    <td align="center"><img src="docs/screenshots/12-library-artists.jpg" width="190" alt="Artists &amp; subscriptions" /><br/><sub>Artists &amp; subscriptions</sub></td>
+  </tr>
+</table>
+
+### 📱 Tablet
+
+On tablets and unfolded foldables PAXwave switches to a sidebar and wider grids by itself
+(or set it under Settings → Appearance → *Tablet layout*).
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/tablet-01-home.jpg" width="400" alt="Home" /><br/><sub>Home</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet-02-home-radio.jpg" width="400" alt="Radio &amp; albums on Home" /><br/><sub>Radio &amp; albums on Home</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/tablet-03-explore.jpg" width="400" alt="Explore" /><br/><sub>Explore</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet-04-podcasts.jpg" width="400" alt="Podcasts" /><br/><sub>Podcasts</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/tablet-05-library.jpg" width="400" alt="Library" /><br/><sub>Library</sub></td>
+    <td align="center"><img src="docs/screenshots/tablet-06-library-on-device.jpg" width="400" alt="On device, playlists &amp; artists" /><br/><sub>On device, playlists &amp; artists</sub></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2"><img src="docs/screenshots/tablet-07-now-playing.jpg" width="600" alt="Now playing" /><br/><sub>Now playing</sub></td>
   </tr>
 </table>
 
@@ -181,6 +273,7 @@ that the APK comes from exactly this code.
   for podcast search and charts, Radio Browser and the stations you play, and lyrics providers
   when you open lyrics.
 - Scrobbling and Discord status only run if you sign in to them.
+- You decide how much PAXwave does in the background: see [Battery](#-battery).
 
 ---
 
@@ -260,8 +353,10 @@ BitChord contributors: [kushagrasinghx](https://github.com/kushagrasinghx), [Gal
 podcast feeds (© their creators) · YouTube Music · lyrics providers such as
 [LRCLIB](https://lrclib.net).
 
-The full list, with licence texts, is also in the app under **Settings → About PAXwave** and in
-[`NOTICE`](NOTICE).
+The full list is also in the app under **Settings → About PAXwave** and in [`NOTICE`](NOTICE).
+The complete licence texts and copyright notices of every bundled component are in
+[`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt), and in the app under
+**About PAXwave → Open-source licences**.
 
 ---
 
