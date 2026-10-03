@@ -30,10 +30,6 @@
 
 ## Built on BitChord
 
-<div align="center">
-
-</div>
-
 <img src="docs/images/bitchord-icon.png" alt="BitChord" width="72" align="left" />
 
 **PAXwave is a fork of [BitChord](https://github.com/kushagrasinghx/BitChord)**, the beautiful
@@ -74,7 +70,7 @@ something this good and for sharing it with everyone under the GPL.
 
 If you enjoy PAXwave, please **[give BitChord a ⭐](https://github.com/kushagrasinghx/BitChord)**
 and support the original project. All credit for the BitChord parts belongs to its authors;
-the BitChord name, logo and banner shown here are theirs and are used only to credit them.
+the BitChord name and logo shown here are theirs and are used only to credit them.
 PAXwave is an independent fork and is not run or endorsed by the BitChord team.
 
 ---
